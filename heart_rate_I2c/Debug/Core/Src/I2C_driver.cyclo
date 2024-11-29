@@ -1,0 +1,6 @@
+../Core/Src/I2C_driver.c:10:6:I2C_init_config	1
+../Core/Src/I2C_driver.c:51:6:I2C_START_COMS	2
+../Core/Src/I2C_driver.c:58:6:I2C_WRITE_DATA	3
+../Core/Src/I2C_driver.c:64:6:I2C_SEND_ADDRESS	3
+../Core/Src/I2C_driver.c:73:6:I2C_STOP_COMS	1
+../Core/Src/I2C_driver.c:78:6:I2C_READ	8
