@@ -6,6 +6,7 @@
  */
 
 #include <I2C_driver.h>
+#include"delay.h"
 
 void I2C_init_config(){
 	RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
@@ -41,7 +42,7 @@ void I2C_init_config(){
 	I2C1->CCR|=0x78<<0;
 
 	//set trise
-	I2C1->TRISE|=0x19; //1000/(1pcll)+1
+	I2C1->TRISE|=0x19<<0; //1000/(1pcll)+1
 
 	//enable i2c peripheral
 	I2C1->CR1 |= I2C_CR1_PE;
@@ -53,6 +54,7 @@ void I2C_START_COMS(){
 	I2C1->CR1|=I2C_CR1_ACK; //enable ACK
 	I2C1->CR1|=I2C_CR1_START;
 	while (I2C1->CR2 & I2C_SR1_SB){}// wait for start condition to generate
+	delay(1);
 }
 
 void I2C_WRITE_DATA(uint8_t data){
@@ -62,16 +64,23 @@ void I2C_WRITE_DATA(uint8_t data){
 }
 
 void I2C_SEND_ADDRESS(uint8_t address){
-	while (!(I2C1->SR1 &I2C_SR1_TXE));  // wait for TXE bit to set
+
 	I2C1->DR = address;
-	while (!(I2C1->SR1 &I2C_SR1_ADDR)); //wait for address bit to be set
+	//delay(4);
+//	printf("\n \r  1 of addr is %d \n \r",I2C1->SR1 & (1<<1));
+	while (!(I2C1->SR1 & (1<<1))); //wait for address bit to be set
 	//This bit is cleared by software reading SR1 register followed reading SR2, or by hardware
+//	printf("\n \r after 2 of addr is %d \n \r",I2C1->SR1 & (1<<1));
 	uint8_t temp_clear=I2C1->SR1 | I2C1->SR2;
+//	printf("\n \r after 3 of addr is %d \n \r",I2C1->SR1 & (1<<1));
+
 
 }
 
 void I2C_STOP_COMS(){
 	I2C1->CR1|=I2C_CR1_STOP; //stop condition
+   // while (I2C1->CR1 & I2C_CR1_STOP);
+	delay(1);
 }
 
 

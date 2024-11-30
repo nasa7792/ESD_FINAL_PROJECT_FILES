@@ -62,7 +62,7 @@ main-build: heart_rate_I2c.elf secondary-outputs
 
 # Tool invocations
 heart_rate_I2c.elf heart_rate_I2c.map: $(OBJS) $(USER_OBJS) C:\Users\Asus\STM32CubeIDE\workspace_1.15.1\heart_rate_I2c\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "heart_rate_I2c.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Asus\STM32CubeIDE\workspace_1.15.1\heart_rate_I2c\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="heart_rate_I2c.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "heart_rate_I2c.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Asus\STM32CubeIDE\workspace_1.15.1\heart_rate_I2c\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="heart_rate_I2c.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

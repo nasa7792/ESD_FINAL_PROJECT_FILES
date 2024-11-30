@@ -1,11 +1,10 @@
 #include "delay.h"
 #include "stm32f4xx.h"
-
 #define	CTRL_ENABLE					(1U<<0)
 #define CTRL_CLKSRC					(1U<<2)
 #define CTRL_COUNTFLAG				(1U<<16)
 #define CTRL_TICKINT				(1U<<1)
-#define SYSTICK_LOAD 12000 - 1
+#define SYSTICK_LOAD 1200 - 1
 
 volatile uint64_t mil;
 
@@ -41,4 +40,9 @@ void delay(uint32_t time)
 void SysTick_Handler(void)
 {
 	mil++;
+}
+
+int isTimeout(uint32_t start,uint32_t timeout_val){
+	 return (millis() - start) >= timeout_val;
+
 }

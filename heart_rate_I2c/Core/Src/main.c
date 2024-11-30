@@ -14,21 +14,30 @@ int main(void)
 
 SystemClock_Config();
 usart_init();
+printf("trying to init max30102 \n \r");
 MAX30102_init();
+printf("after  to init max30102 \n \r");
+uint8_t get_id;
+while (1) {
+    // Start temperature measurement
+    MAX30102_Start_Temperature_Measurement();
+    uint32_t start=millis();
+    uint8_t temp_ready_flag =0;
+    while (!(temp_ready_flag & 0x02)) {
 
-printf(" this is a test to eeprom write \n \r");
-MAX30102_WRITE_REGISTER(0,5);
-printf(" what happened ? \n \r");
-/*
-printf("trying to reset  max \n \r");
-MAX30102_WRITE_REGISTER(MODE_CONFIG_REG,1<<6);
-uint8_t recv_buff;
-printf("trying to fetch from max \n \r");
-MAX30102_READ_REGISTER(0XFF,&recv_buff,1);
-printf("\n \r something happened! part is %x \n \r",recv_buff);
-*/
-while(1){
+    	if(isTimeout(start,200)){
+            printf("Temperature measurement timeout!\n\r");
+               break; // Exit the loop on timeout
+    	}
+    	MAX30102_READ_REGISTER(INTERRUPT_STATUS_2, &temp_ready_flag, 1);
+    	delay(2);
+    }
+    if (temp_ready_flag & 0x02) {
+        float temperature = MAX30102_Read_Temperature();
+        printf("\n\rTemperature: %f C\n\r", temperature);
+    }
 
+}
 }
 /*
 delay(6000);
@@ -54,7 +63,7 @@ else{
 }
 }
 */
-}
+
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
