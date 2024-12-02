@@ -1,0 +1,16 @@
+../Core/Src/main.c:239:6:st7789_spi_init	1
+../Core/Src/main.c:254:13:ST7789_WriteCommand	1
+../Core/Src/main.c:262:13:ST7789_WriteData	1
+../Core/Src/main.c:270:13:ST7789_WriteSmallData	1
+../Core/Src/main.c:278:13:ST7789_SetAddressWindow	1
+../Core/Src/main.c:300:6:ST7789_Fill_Color	3
+../Core/Src/main.c:314:6:ST7789_WriteChar	4
+../Core/Src/main.c:336:6:ST7789_WriteString	5
+../Core/Src/main.c:365:6:ST7789_Init	1
+../Core/Src/main.c:425:6:parse_gps_output	4
+../Core/Src/main.c:486:5:main	1
+../Core/Src/main.c:537:6:SystemClock_Config	3
+../Core/Src/main.c:584:13:MX_USART1_UART_Init	2
+../Core/Src/main.c:617:13:MX_USART2_UART_Init	2
+../Core/Src/main.c:650:13:MX_GPIO_Init	1
+../Core/Src/main.c:670:6:Error_Handler	1
