@@ -1,0 +1,10 @@
+../Core/Src/main.c:69:6:myprintf	16	static
+../Core/Src/main.c:93:7:parse_gps_output	48	static
+../Core/Src/main.c:118:6:sd_card_load	1192	dynamic
+../Core/Src/main.c:192:5:main	16	static
+../Core/Src/main.c:247:6:SystemClock_Config	88	static
+../Core/Src/main.c:294:13:MX_SPI1_Init	8	static
+../Core/Src/main.c:332:13:MX_USART1_UART_Init	8	static
+../Core/Src/main.c:365:13:MX_USART2_UART_Init	8	static
+../Core/Src/main.c:398:13:MX_GPIO_Init	48	static
+../Core/Src/main.c:432:6:Error_Handler	4	static,ignoring_inline_asm
