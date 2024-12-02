@@ -26,7 +26,7 @@ int main(void)
 
 SystemClock_Config();
 delay(6000);
-uint8_t RxAddress[] = {0xEE,0xDD,0xCC,0xBB,0xAA};
+uint8_t RxAddress[] = {0xB3,0xB4,0xB5,0xB6,0x05};
 uint8_t RxData[32] ;
 uint8_t channel=10;
 usart_init();
