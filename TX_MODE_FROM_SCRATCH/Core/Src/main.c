@@ -14,12 +14,14 @@ int main(void)
 
 SystemClock_Config();
 delay(6000);
-uint8_t TxAddress[] = {0xEE,0xDD,0xCC,0xBB,0xAA};
-uint8_t TxData[32]="where did my data go ?";
+uint8_t TxAddress[] = {0xB3,0xB4,0xB5,0xB6,0x05};
+uint8_t TxData[32]="Hi Nalin?";
 uint8_t channel=10;
 usart_init();
 NRF_INIT();
 NRF_PTX_CONFIG(TxAddress,channel);
+
+printf(" \n \r setting up as transmit primary \n \r ");
 
 for(int i=0;i<0x1D;i++){
 	printf("\n \r register %x is value %x \n \r",i,NRF_READ_REGISTER(i));

@@ -1,0 +1,4 @@
+../Core/Src/heartRate.c:82:6:checkForBeat	6
+../Core/Src/heartRate.c:141:9:averageDCEstimator	1
+../Core/Src/heartRate.c:148:9:lowPassFIRFilter	2
+../Core/Src/heartRate.c:166:9:mul16	1

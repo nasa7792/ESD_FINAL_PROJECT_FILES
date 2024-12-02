@@ -29,7 +29,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/utilities.h ../Core/Inc/delay.h ../Core/Inc/SPI.h \
  ../Core/Inc/utilities.h ../Core/Inc/NRF_DRIVER.h ../Core/Inc/SPI.h \
  ../Core/Inc/NRF_DRIVER.h ../Core/Inc/max_heart_sensor_driver.h \
- ../Core/Inc/I2C_driver.h
+ ../Core/Inc/I2C_driver.h ../Core/Inc/spo2_algorithm.h \
+ ../Core/Inc/heartRate.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -67,3 +68,5 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/NRF_DRIVER.h:
 ../Core/Inc/max_heart_sensor_driver.h:
 ../Core/Inc/I2C_driver.h:
+../Core/Inc/spo2_algorithm.h:
+../Core/Inc/heartRate.h:

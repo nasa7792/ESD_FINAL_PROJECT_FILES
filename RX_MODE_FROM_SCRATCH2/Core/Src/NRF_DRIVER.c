@@ -74,8 +74,8 @@ void init_CSN_CE_PINS(){
 		NRF_DISABLE();
 		NRF_WRITE_REGISTER(RF_CH,channel); //select channel
 		NRF_WRITE_REG_MULTI_BYTES(TX_ADDR,Address,5); //set address
-		NRF_WRITE_REGISTER(CONFIG,0x02); //powwr on device and keep in tx mode
-		NRF_ENABLE();
+		NRF_WRITE_REGISTER(CONFIG,0x0a); //powwr on device and keep in tx mode
+		//NRF_ENABLE();
 	}
 
 	void NRF_PRX_CONFIG(uint8_t *Address, uint8_t channel){
@@ -86,8 +86,9 @@ void init_CSN_CE_PINS(){
 		NRF_WRITE_REGISTER(EN_RXADDR,current_pipe_status);
 		NRF_WRITE_REG_MULTI_BYTES(RX_ADDR_P1,Address,5); //pipe address
 		NRF_WRITE_REGISTER(RX_PW_P1,32); //data 32 bytes width
-		NRF_WRITE_REGISTER(CONFIG,0x03); //powwr on device and keep in tx mode
-		NRF_ENABLE();
+		NRF_WRITE_REGISTER(CONFIG,0x0b); //powwr on device and keep in tx mode
+		delay(5);
+		//NRF_ENABLE();
 	}
 
 	void nrf24_reset(uint8_t REG)
@@ -143,19 +144,19 @@ void init_CSN_CE_PINS(){
 		nrf24_reset(0);
 		NRF_WRITE_REGISTER(CONFIG, 0);  // will be configured later
 
-		NRF_WRITE_REGISTER(EN_AA, 0x00);  // No Auto ACK
+		NRF_WRITE_REGISTER(EN_AA, 0x3f);  // No Auto ACK
 		//NRF_WRITE_REGISTER(SETUP_RETR, 0x03); // 15 retries, 500µs delay
 
 		NRF_WRITE_REGISTER (EN_RXADDR, 0);  // Not Enabling any data pipe right now
 
 		NRF_WRITE_REGISTER (SETUP_AW, 0x03);  // 5 Bytes for the TX/RX address
 
-		NRF_WRITE_REGISTER (SETUP_RETR, 0);   // No retransmission
+		NRF_WRITE_REGISTER (SETUP_RETR, 0x3);   // No retransmission
 
 		NRF_WRITE_REGISTER (RF_CH, 0);  // will be setup during Tx or RX
 
-		NRF_WRITE_REGISTER (RF_SETUP, 0x0E);   // Power= 0db, data rate = 2Mbps
-		NRF_ENABLE();
+		NRF_WRITE_REGISTER (RF_SETUP, 0x0e);   // Power= 0db, data rate = 2Mbps
+		//NRF_ENABLE();
 	}
 
 
@@ -178,9 +179,13 @@ void init_CSN_CE_PINS(){
 	  SPI_TX_MULTI( &cmd, 1);
 		SPI_TX_MULTI(data_ptr,32);//send payload
 		CSN_UNSELECT_NRF();
+//		delay(10);
+
+		NRF_ENABLE();
 		delay(10);
+		NRF_DISABLE();
 		tx_fifo_stat=NRF_READ_REGISTER(FIFO_STATUS);
-		printf("tx_fifo_stat is - %d",tx_fifo_stat);
+	//	printf("tx_fifo_stat is - %d",tx_fifo_stat);
 //		if(tx_fifo_stat&(1<<5)){
 //			printf("ack recieved !\n \r");
 //			 NRF_WRITE_REGISTER(STATUS, (1 << 5));
@@ -199,6 +204,7 @@ void init_CSN_CE_PINS(){
 	}
 
 uint8_t is_data_on_pipe(uint8_t pipenum){
+	NRF_ENABLE();
 uint8_t status_reg=NRF_READ_REGISTER(STATUS);
 //if 6 th bit is set and respective data pipe is set
 if((status_reg & (1<<6))&& status_reg &(1<<pipenum)){
@@ -218,7 +224,7 @@ void NRF_RECV_DATA(uint8_t *data_ptr_RECV){
 	delay(10);
 	cmd=FLUSH_RX;
 	NRD_SEND_CMD(cmd); //flush rx fifo
-
+	NRF_DISABLE();
 }
 
 

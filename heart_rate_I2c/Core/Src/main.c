@@ -7,6 +7,10 @@
 #include"SPI.h"
 #include"NRF_DRIVER.h"
 #include"max_heart_sensor_driver.h"
+#include <stdbool.h>
+#include"spo2_algorithm.h"
+#include"heartRate.h"
+//#define __AVR_ATmega168__ 1
 
 void SystemClock_Config(void);
 int main(void)
@@ -17,28 +21,73 @@ usart_init();
 printf("trying to init max30102 \n \r");
 MAX30102_init();
 printf("after  to init max30102 \n \r");
-uint8_t get_id;
-while (1) {
-    // Start temperature measurement
-    MAX30102_Start_Temperature_Measurement();
-    uint32_t start=millis();
-    uint8_t temp_ready_flag =0;
-    while (!(temp_ready_flag & 0x02)) {
 
-    	if(isTimeout(start,200)){
-            printf("Temperature measurement timeout!\n\r");
-               break; // Exit the loop on timeout
-    	}
-    	MAX30102_READ_REGISTER(INTERRUPT_STATUS_2, &temp_ready_flag, 1);
-    	delay(2);
-    }
-    if (temp_ready_flag & 0x02) {
-        float temperature = MAX30102_Read_Temperature();
-        printf("\n\rTemperature: %f C\n\r", temperature);
-    }
+uint32_t irBuffer[100]; //infrared LED sensor data
+uint32_t redBuffer[100];  //red LED sensor data
+int32_t bufferLength;
+int32_t spo2; //SPO2 value
+int8_t validSPO2; //indicator to show if the SPO2 calculation is valid
+int32_t heartRate; //heart rate value
+int8_t validHeartRate; //indicator to show if the heart rate calculation is valid
+while(1){
+
+	//printf("ir %lu \n \r",getIR());
+	//printf("red %lu \n \r",getRed());
+
+	bufferLength=100;
+	  for (uint8_t i = 0 ; i < bufferLength ; i++)
+	  {
+	    while (available() == false) //do we have new data?
+	    	check_new_data(); //Check the sensor for new data
+
+	    redBuffer[i] = getRed();
+	    irBuffer[i] =  getIR();
+	    nextSample(); //We're finished with this sample so move to next sample
+
+//	    printf("\n \r RED =%lu",redBuffer[i]);
+//	    printf(" IR =%lu",irBuffer[i]);
+	  }
+	  maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
+	  while (1)
+	  {
+	    //dumping the first 25 sets of samples in the memory and shift the last 75 sets of samples to the top
+	    for (uint8_t i = 25; i < 100; i++)
+	    {
+	      redBuffer[i - 25] = redBuffer[i];
+	      irBuffer[i - 25] = irBuffer[i];
+	    }
+
+	    //take 25 sets of samples before calculating the heart rate.
+	    for (uint8_t i = 75; i < 100; i++)
+	    {
+	      while (available() == false) //do we have new data?
+	    	  check_new_data(); //Check the sensor for new data
+
+
+
+	      redBuffer[i] = getRed();
+	      irBuffer[i] = getIR();
+	     nextSample(); //We're finished with this sample so move to next sample
+
+	      //send samples and calculation result to terminal program through UART
+	   //  printf("\n \r RED =%lu",redBuffer[i]);
+	 	// printf(" IR =%lu",irBuffer[i]);
+
+	     printf("\n \r HEARATE =%ld",heartRate);
+	     printf(" is valid HEARATE =%d",validHeartRate);
+	 	 printf(" spo2 =%ld",spo2);
+	     printf(" is valid spo2 =%d",validSPO2);
+	    }
+
+	    //After gathering 25 new samples recalculate HR and SP02
+	    maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
+	    delay(1000);
+	  }
 
 }
 }
+
+
 /*
 delay(6000);
 uint8_t TxAddress[] = {0xEE,0xDD,0xCC,0xBB,0xAA};

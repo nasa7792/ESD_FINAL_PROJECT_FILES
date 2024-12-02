@@ -74,8 +74,13 @@ void init_CSN_CE_PINS(){
 		NRF_DISABLE();
 		NRF_WRITE_REGISTER(RF_CH,channel); //select channel
 		NRF_WRITE_REG_MULTI_BYTES(TX_ADDR,Address,5); //set address
-		NRF_WRITE_REGISTER(CONFIG,0x02); //powwr on device and keep in tx mode
-		NRF_ENABLE();
+		uint8_t current_pipe_status=NRF_READ_REGISTER(EN_RXADDR);
+		current_pipe_status=current_pipe_status|(1<<0);//enable pipe 1
+		NRF_WRITE_REGISTER(EN_RXADDR,current_pipe_status);
+		NRF_WRITE_REG_MULTI_BYTES(RX_ADDR_P0,Address,5); //pipe address
+		NRF_WRITE_REGISTER(CONFIG,0x0a); //powwr on device and keep in tx mode
+		delay(5);
+		//NRF_ENABLE();
 	}
 
 	void NRF_PRX_CONFIG(uint8_t *Address, uint8_t channel){
@@ -86,7 +91,7 @@ void init_CSN_CE_PINS(){
 		NRF_WRITE_REGISTER(EN_RXADDR,current_pipe_status);
 		NRF_WRITE_REG_MULTI_BYTES(RX_ADDR_P1,Address,5); //pipe address
 		NRF_WRITE_REGISTER(RX_PW_P1,32); //data 32 bytes width
-		NRF_WRITE_REGISTER(CONFIG,0x03); //powwr on device and keep in tx mode
+		NRF_WRITE_REGISTER(CONFIG,0x0b); //powwr on device and keep in tx mode
 		NRF_ENABLE();
 	}
 
@@ -143,19 +148,19 @@ void init_CSN_CE_PINS(){
 		nrf24_reset(0);
 		NRF_WRITE_REGISTER(CONFIG, 0);  // will be configured later
 
-		NRF_WRITE_REGISTER(EN_AA, 0x00);  // No Auto ACK
+		NRF_WRITE_REGISTER(EN_AA, 0x3f);  // No Auto ACK
 		//NRF_WRITE_REGISTER(SETUP_RETR, 0x03); // 15 retries, 500µs delay
 
 		NRF_WRITE_REGISTER (EN_RXADDR, 0);  // Not Enabling any data pipe right now
 
 		NRF_WRITE_REGISTER (SETUP_AW, 0x03);  // 5 Bytes for the TX/RX address
 
-		NRF_WRITE_REGISTER (SETUP_RETR, 0);   // No retransmission
+		NRF_WRITE_REGISTER (SETUP_RETR, 0x3);   // No retransmission
 
 		NRF_WRITE_REGISTER (RF_CH, 0);  // will be setup during Tx or RX
 
-		NRF_WRITE_REGISTER (RF_SETUP, 0x0E);   // Power= 0db, data rate = 2Mbps
-		NRF_ENABLE();
+		NRF_WRITE_REGISTER (RF_SETUP, 0x0e);   // Power= 0db, data rate = 2Mbps
+		//NRF_ENABLE();
 	}
 
 
@@ -173,27 +178,41 @@ void init_CSN_CE_PINS(){
 
 	uint8_t NRF_TX_DATA(uint8_t *data_ptr){
 		uint8_t tx_fifo_stat;
+		uint8_t status_reg;
 		CSN_SELECT_NRF();
 	  uint8_t cmd = W_TX_PAYLOAD;
 	  SPI_TX_MULTI( &cmd, 1);
 		SPI_TX_MULTI(data_ptr,32);//send payload
 		CSN_UNSELECT_NRF();
+		NRF_ENABLE();
 		delay(10);
+		NRF_DISABLE();
 		tx_fifo_stat=NRF_READ_REGISTER(FIFO_STATUS);
+		status_reg=NRF_READ_REGISTER(STATUS);
+
+
 		printf("tx_fifo_stat is - %d",tx_fifo_stat);
-//		if(tx_fifo_stat&(1<<5)){
-//			printf("ack recieved !\n \r");
-//			 NRF_WRITE_REGISTER(STATUS, (1 << 5));
-//		     cmd = FLUSH_TX;
-//		     NRD_SEND_CMD(cmd);
-//		     return 1;
-//		}
+		printf("status register- %d",status_reg);
+
 		if ((tx_fifo_stat&(1<<4)) && (!(tx_fifo_stat&(1<<3)))){
 			cmd=FLUSH_TX;
 			NRD_SEND_CMD(cmd);
 			NRF_WRITE_REGISTER(FIFO_STATUS, 0x11); //reset fifo
 			return 1;
 		}
+
+		if(status_reg &(1<<4)){
+			printf("max number of retransmission \n \r %d \n \r",status_reg);
+			status_reg=status_reg|(1<<4);
+			NRF_WRITE_REGISTER(STATUS,status_reg);
+			status_reg=NRF_READ_REGISTER(STATUS);
+			printf("after clearing flag? %d \n \r",status_reg);
+			cmd=FLUSH_TX;
+		 NRD_SEND_CMD(cmd);
+		NRF_WRITE_REGISTER(FIFO_STATUS, 0x11); //reset fifo
+
+		}
+
 		return 0;
 
 	}
