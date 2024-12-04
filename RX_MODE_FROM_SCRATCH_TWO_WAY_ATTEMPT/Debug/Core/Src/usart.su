@@ -1,0 +1,6 @@
+../Core/Src/usart.c:13:6:usart_init	4	static
+../Core/Src/usart.c:35:6:usart_out	16	static
+../Core/Src/usart.c:42:6:uart_string_out	16	static
+../Core/Src/usart.c:48:6:usart_get	4	static
+../Core/Src/usart.c:56:5:__io_putchar	16	static
+../Core/Src/usart.c:61:5:__io_getchar	8	static
