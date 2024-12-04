@@ -7,5 +7,8 @@ current status -
 2. heart rate sensor done (only spo2 and temperature is stable)
 3. hal code for sd card
 4. hal code for gps
+5. integartion of max30102 with nrf
+6. statte machine code for trans side
 
-![this-is-fine_custom-b7c50c845a78f5d7716475a92016d52655ba3115](https://github.com/user-attachments/assets/bfded825-d257-4b6b-8ab6-363357d68bf8)
+
+![cat](https://github.com/user-attachments/assets/03db5d03-604c-4409-b3ce-156b290ba299)
