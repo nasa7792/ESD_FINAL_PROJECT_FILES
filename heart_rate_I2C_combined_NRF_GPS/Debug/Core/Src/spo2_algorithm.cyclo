@@ -1,0 +1,6 @@
+../Core/Src/spo2_algorithm.c:83:6:maxim_heart_rate_and_oxygen_saturation	26
+../Core/Src/spo2_algorithm.c:224:6:maxim_find_peaks	1
+../Core/Src/spo2_algorithm.c:238:6:maxim_peaks_above_min_height	8
+../Core/Src/spo2_algorithm.c:268:6:maxim_remove_close_peaks	6
+../Core/Src/spo2_algorithm.c:297:6:maxim_sort_ascend	4
+../Core/Src/spo2_algorithm.c:315:6:maxim_sort_indices_descend	4
