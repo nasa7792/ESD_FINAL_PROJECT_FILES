@@ -8,6 +8,7 @@
 #include"NRF_DRIVER.h"
 #include<string.h>
 #include"utilities.h"
+#include "st7789_lcd_functions.h"
 
 void test_configure_btn_interupt(){
     // Configure PA1 as input
@@ -32,6 +33,25 @@ void test_configure_btn_interupt(){
     NVIC_EnableIRQ(EXTI1_IRQn);
     NVIC_SetPriority(EXTI1_IRQn, 2); // Set priority
 
+}
+
+const char* convert_uint8_to_char(const uint8_t* uint8_array, size_t length) {
+    // Allocate memory for the resulting char array
+    static char char_array[256];  // Ensure the size is sufficient for your use case
+    if (length >= sizeof(char_array)) {
+        length = sizeof(char_array) - 1; // Prevent overflow
+    }
+
+    // Copy data from uint8_t array to char array
+    for (size_t i = 0; i < length; i++) {
+        char_array[i] = (char)uint8_array[i];
+    }
+
+    // Null-terminate the string
+    char_array[length] = '\0';
+
+    // Return as a const char*
+    return char_array;
 }
 
 volatile char ack_payload[10];
@@ -82,6 +102,8 @@ while(1){
 		printf("\n \r recieved data \n \r");
 		NRF_RECV_DATA(RxData);
 		print(RxData,32);
+		const char* result = convert_uint8_to_char(RxData, 32);
+		ST7789_WriteString(10, 20, result, Font_11x18, RED, WHITE); // Display Data on LCD
 	}
 }
 
