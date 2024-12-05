@@ -8,6 +8,7 @@
 
 extern uint16_t timeout;
 extern int VCCTimeout;
+extern uint16_t Timer1, Timer2;
 
 volatile uint64_t mil;
 
@@ -45,6 +46,12 @@ void SysTick_Handler(void)
 	mil++;
     if (timeout > 0)  timeout--;
 	if (VCCTimeout>0) VCCTimeout--;
+	if (Timer1 > 0){
+		Timer1--;
+	}
+	if (Timer2 > 0){
+		Timer2--;
+	}
 }
 
 int isTimeout(uint32_t start,uint32_t timeout_val){

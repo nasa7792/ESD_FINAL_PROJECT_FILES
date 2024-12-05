@@ -13,11 +13,13 @@
 #include<string.h>
 #include"max_heart_sensor_driver.h"
 #include"gps.h"
+#include"sd_card.h"
 
 typedef enum {
 STATE_HEART_DATA_ACQUIRE,
 STATE_GPS_DATA_ACQUIRE,
 STATE_PACKET_FORMATION,
+STATE_STORE_DATA_SD_CARD,
 STATE_TRANSMIT_NRF,
 STATE_EXECUTE_RECV_COMMAND
 

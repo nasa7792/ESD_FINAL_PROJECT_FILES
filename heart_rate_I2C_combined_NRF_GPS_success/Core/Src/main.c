@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "fatfs.h"
 #include "usart.h"
 #include <stdio.h>
 #include"utilities.h"
@@ -28,6 +29,10 @@
 #include <stdbool.h>
 #include<state_machine.h>
 #include "gps.h"
+#include "sd_card.h"
+
+
+SPI_HandleTypeDef hspi2;
 
 UART_HandleTypeDef huart1;
 
@@ -35,56 +40,74 @@ UART_HandleTypeDef huart1;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
-
+static void MX_SPI2_Init(void);
 
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-HAL_Init();
-SystemClock_Config();
-usart_init();
+	HAL_Init();
 
-printf("trying to init max30102 \n \r");
-MAX30102_init();
-printf("after  to init max30102 \n \r");
+	SystemClock_Config();
 
-//nrf init code
-uint8_t TxAddress[] = {0xB3,0xB4,0xB5,0xB6,0x05};
-uint8_t channel=10;
-delay(2000);
-NRF_INIT();
-NRF_PTX_CONFIG(TxAddress,channel);
-
-printf(" \n \r setting up as transmit primary dynamic payload attempt \n \r ");
-for(int i=0;i<=0x1D;i++){
-	printf("\n \r register %x is value %x \n \r",i,NRF_READ_REGISTER(i));
-}
+	usart_init();
 
 
 
-StateMachine SM;
-FSM_INIT(&SM);
+	printf("trying to init max30102 \n \r");
+
+	MAX30102_init();
+
+	printf("after  to init max30102 \n \r");
 
 
 
- // SystemClock_Config();
+	//nrf init code
+
+	uint8_t TxAddress[] = {0xB3,0xB4,0xB5,0xB6,0x05};
+
+	uint8_t channel=10;
+
+	delay(2000);
+
+	NRF_INIT();
+
+	NRF_PTX_CONFIG(TxAddress,channel);
+
+
+
+	printf(" \n \r setting up as transmit primary dynamic payload attempt \n \r ");
+
+	for(int i=0;i<=0x1D;i++){
+
+		printf("\n \r register %x is value %x \n \r",i,NRF_READ_REGISTER(i));
+
+	}
+
+
+	StateMachine SM;
+
+	FSM_INIT(&SM);
+
 
 
   MX_GPIO_Init();
   MX_USART1_UART_Init();
+  MX_SPI2_Init();
+  MX_FATFS_Init();
+
   Ringbuf_init();
 
-
-
-
-  while (1)
-  {
-	execute_sm(&SM);
+  while(1){
+	  execute_sm(&SM);
   }
 
 }
 
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -128,6 +151,44 @@ void SystemClock_Config(void)
 }
 
 /**
+  * @brief SPI2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI2_Init(void)
+{
+
+  /* USER CODE BEGIN SPI2_Init 0 */
+
+  /* USER CODE END SPI2_Init 0 */
+
+  /* USER CODE BEGIN SPI2_Init 1 */
+
+  /* USER CODE END SPI2_Init 1 */
+  /* SPI2 parameter configuration*/
+  hspi2.Instance = SPI2;
+  hspi2.Init.Mode = SPI_MODE_MASTER;
+  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi2.Init.NSS = SPI_NSS_SOFT;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi2.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI2_Init 2 */
+
+  /* USER CODE END SPI2_Init 2 */
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -167,12 +228,25 @@ static void MX_USART1_UART_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 /* USER CODE BEGIN MX_GPIO_Init_1 */
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : SPI2_CS_Pin */
+  GPIO_InitStruct.Pin = SPI2_CS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(SPI2_CS_GPIO_Port, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

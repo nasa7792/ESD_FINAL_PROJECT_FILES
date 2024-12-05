@@ -90,6 +90,10 @@ void execute_sm(StateMachine *sm){
 			else{
 				printf("\n \r Something went wrong ! \n \r");
 			}
+			sm->current_state=STATE_STORE_DATA_SD_CARD;
+			break;
+		case STATE_STORE_DATA_SD_CARD:
+			process_SD_card(sm->nrf_payload);
 			sm->current_state=STATE_HEART_DATA_ACQUIRE;
 			break;
 	}
