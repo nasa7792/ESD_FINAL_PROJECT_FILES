@@ -1,0 +1,17 @@
+../Core/Src/NRF_DRIVER.c:15:6:init_CSN_CE_PINS	4	static
+../Core/Src/NRF_DRIVER.c:22:7:CSN_SELECT_NRF	4	static
+../Core/Src/NRF_DRIVER.c:26:7:CSN_UNSELECT_NRF	4	static
+../Core/Src/NRF_DRIVER.c:30:7:NRF_ENABLE	4	static
+../Core/Src/NRF_DRIVER.c:34:7:NRF_DISABLE	4	static
+../Core/Src/NRF_DRIVER.c:40:7:NRF_WRITE_REGISTER	24	static
+../Core/Src/NRF_DRIVER.c:49:7:NRF_WRITE_REG_MULTI_BYTES	32	static
+../Core/Src/NRF_DRIVER.c:58:10:NRF_READ_REGISTER	24	static
+../Core/Src/NRF_DRIVER.c:67:7:NRF_READ_REGISTER_MULTI	24	static
+../Core/Src/NRF_DRIVER.c:74:7:NRF_PTX_CONFIG	24	static
+../Core/Src/NRF_DRIVER.c:90:7:NRF_PRX_CONFIG	24	static
+../Core/Src/NRF_DRIVER.c:105:7:nrf24_reset	40	static
+../Core/Src/NRF_DRIVER.c:151:7:NRF_INIT	8	static
+../Core/Src/NRF_DRIVER.c:186:7:NRD_SEND_CMD	16	static
+../Core/Src/NRF_DRIVER.c:198:10:NRF_TX_DATA	24	static
+../Core/Src/NRF_DRIVER.c:239:9:is_data_on_pipe	24	static
+../Core/Src/NRF_DRIVER.c:254:9:NRF_RECV_DATA	24	static

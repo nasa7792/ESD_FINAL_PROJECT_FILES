@@ -1,0 +1,16 @@
+../Core/Src/max_heart_sensor_driver.c:25:6:MAX30102_init	8	static
+../Core/Src/max_heart_sensor_driver.c:50:6:MAX30102_init_TEMPERATURE	8	static
+../Core/Src/max_heart_sensor_driver.c:71:6:MAX30102_WRITE_REGISTER	24	static
+../Core/Src/max_heart_sensor_driver.c:81:6:MAX30102_READ_REGISTER	24	static
+../Core/Src/max_heart_sensor_driver.c:93:6:MAX30102_Start_Temperature_Measurement	8	static
+../Core/Src/max_heart_sensor_driver.c:99:7:MAX30102_Read_Temperature	24	static
+../Core/Src/max_heart_sensor_driver.c:114:9:MAX30102_get_Read_ptr	16	static
+../Core/Src/max_heart_sensor_driver.c:120:9:MAX30102_get_WR_ptr	16	static
+../Core/Src/max_heart_sensor_driver.c:126:9:available	16	static
+../Core/Src/max_heart_sensor_driver.c:137:10:check_new_data	40	static
+../Core/Src/max_heart_sensor_driver.c:196:6:safeCheck	48	static
+../Core/Src/max_heart_sensor_driver.c:212:6:MAX30102_read_fifo	24	static
+../Core/Src/max_heart_sensor_driver.c:228:10:getRed	8	static
+../Core/Src/max_heart_sensor_driver.c:237:10:getIR	8	static
+../Core/Src/max_heart_sensor_driver.c:247:6:nextSample	8	static
+../Core/Src/max_heart_sensor_driver.c:255:6:acquire_max_30102_data	856	static
