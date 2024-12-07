@@ -8,9 +8,9 @@
 ../Core/Src/max_heart_sensor_driver.c:120:9:MAX30102_get_WR_ptr	1
 ../Core/Src/max_heart_sensor_driver.c:126:9:available	2
 ../Core/Src/max_heart_sensor_driver.c:137:10:check_new_data	6
-../Core/Src/max_heart_sensor_driver.c:240:6:safeCheck	3
-../Core/Src/max_heart_sensor_driver.c:256:6:MAX30102_read_fifo	1
-../Core/Src/max_heart_sensor_driver.c:272:10:getRed	2
-../Core/Src/max_heart_sensor_driver.c:281:10:getIR	2
-../Core/Src/max_heart_sensor_driver.c:291:6:nextSample	2
-../Core/Src/max_heart_sensor_driver.c:299:6:acquire_max_30102_data	8
+../Core/Src/max_heart_sensor_driver.c:196:6:safeCheck	3
+../Core/Src/max_heart_sensor_driver.c:212:6:MAX30102_read_fifo	1
+../Core/Src/max_heart_sensor_driver.c:228:10:getRed	2
+../Core/Src/max_heart_sensor_driver.c:237:10:getIR	2
+../Core/Src/max_heart_sensor_driver.c:247:6:nextSample	2
+../Core/Src/max_heart_sensor_driver.c:255:6:acquire_max_30102_data	8

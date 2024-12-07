@@ -27,51 +27,17 @@
 #define CLOCK 16000000  // Assume 16 MHz clock for APB2 (for USART1 and USART2)
 
 
-#define GPIOB_BSRR_SET_DC   (1U << 5)      // Set PB5
-#define GPIOB_BSRR_SET_CS   (1U << 6)      // Set PB6
-#define GPIOB_BSRR_SET_RST   (1U << 7)      // Set PB7
-#define GPIOB_BSRR_SET_PB4   (1U << 4)        // Set PB4 high for Backlight
 
-// Reset PB5, PB6, and PB7 using the BSRR register
-#define GPIOB_BSRR_RESET_DC (1U << (5 + 16))  // Reset PB5
-#define GPIOB_BSRR_RESET_CS (1U << (6 + 16))  // Reset PB6
-#define GPIOB_BSRR_RESET_RST (1U << (7 + 16))  // Reset PB7
-#define GPIOB_BSRR_RESET_PB4 (1U << (4 + 16))  // Reset PB4 low for Backlight
-
-/* Control Registers and constant codes */
-#define ST7789_NOP     0x00
-#define ST7789_SWRESET 0x01
-#define ST7789_RDDID   0x04
-#define ST7789_RDDST   0x09
-#define ST7789_RDDPM   0x0A
-
-#define ST7789_SLPIN   0x10
-#define ST7789_SLPOUT  0x11
-#define ST7789_PTLON   0x12
-#define ST7789_NORON   0x13
-
-#define ST7789_INVOFF  0x20
-#define ST7789_INVON   0x21
-#define ST7789_DISPOFF 0x28
-#define ST7789_DISPON  0x29
-#define ST7789_CASET   0x2A
-#define ST7789_RASET   0x2B
-#define ST7789_RAMWR   0x2C
-#define ST7789_RAMRD   0x2E
-
-#define ST7789_PTLAR   0x30
-#define ST7789_COLMOD  0x3A
-#define ST7789_MADCTL  0x36
-
-#define ST7789_COLOR_MODE_16bit 0x55    //  RGB565 (16bit)
-
-#define ST7789_WIDTH 1000
-#define ST7789_HEIGHT 1000
-#define X_SHIFT 0
-#define Y_SHIFT 0
 
 const FontDef Font_11x18 = {11, 18, Font11x18_array};
+const tImage Image = { image_data_Image, 40, 40,
+    16 };
 
+const tImage Earth_img = { EARTH_IMAGE, 40, 40,
+    16 };
+
+const tImage Spo2 = { spo2_image, 40, 40,
+    16 };
 
 void st7789_spi_init()
 {
@@ -88,7 +54,7 @@ void st7789_spi_init()
 }
 
 
-static void ST7789_WriteCommand(uint8_t cmd)
+void ST7789_WriteCommand(uint8_t cmd)
 {
 	GPIOB->BSRR = GPIOB_BSRR_RESET_DC; // DC Low indicating Command
 	GPIOB->BSRR = GPIOB_BSRR_RESET_CS; // Chip Select Low
@@ -96,7 +62,7 @@ static void ST7789_WriteCommand(uint8_t cmd)
 	GPIOB->BSRR = GPIOB_BSRR_SET_CS; // Chip Select High
 }
 
-static void ST7789_WriteData(uint8_t *buff, uint32_t buff_size)
+ void ST7789_WriteData(uint8_t *buff, uint32_t buff_size)
 {
 	GPIOB->BSRR = GPIOB_BSRR_SET_DC;
 	GPIOB->BSRR = GPIOB_BSRR_RESET_CS; // Chip Select Low
@@ -104,7 +70,7 @@ static void ST7789_WriteData(uint8_t *buff, uint32_t buff_size)
 	GPIOB->BSRR = GPIOB_BSRR_SET_CS; // Chip Select High
 }
 
-static void ST7789_WriteSmallData(uint8_t data)
+ void ST7789_WriteSmallData(uint8_t data)
 {
 	GPIOB->BSRR = GPIOB_BSRR_SET_DC; // DC High indicating Data
 	GPIOB->BSRR = GPIOB_BSRR_RESET_CS; // Chip Select Low
@@ -112,7 +78,7 @@ static void ST7789_WriteSmallData(uint8_t data)
 	GPIOB->BSRR = GPIOB_BSRR_SET_CS; // Chip Select High
 }
 
-static void ST7789_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+ void ST7789_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
 	uint16_t x_start = x0 + X_SHIFT, x_end = x1 + X_SHIFT;
 	uint16_t y_start = y0 + Y_SHIFT, y_end = y1 + Y_SHIFT;
@@ -256,6 +222,26 @@ void ST7789_Init(void)
   	GPIOB->BSRR = GPIOB_BSRR_SET_PB4;  // Set PB4 high
 
   	delay(50);
-	ST7789_Fill_Color(RED);				//	Fill with Black.
+	ST7789_Fill_Color(LIGHT_BLUE);				//	Fill with Black.
 }
 
+void ST7789_DrawPixel(uint16_t x, uint16_t y, uint16_t color)
+{
+	if ((x < 0) || (x >= ST7789_WIDTH) ||
+		 (y < 0) || (y >= ST7789_HEIGHT))	return;
+
+	ST7789_SetAddressWindow(x, y, x, y);
+	uint8_t data[] = {color >> 8, color & 0xFF};
+	ST7789_WriteData(data, sizeof(data));
+}
+
+
+void ST7789_DrawImage(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const uint16_t *imageData)
+{
+    for (uint16_t row = 0; row < height; row++) {
+        for (uint16_t col = 0; col < width; col++) {
+            uint16_t color = imageData[row * width + col];
+            ST7789_DrawPixel(x + col, y + row, color);
+        }
+    }
+}

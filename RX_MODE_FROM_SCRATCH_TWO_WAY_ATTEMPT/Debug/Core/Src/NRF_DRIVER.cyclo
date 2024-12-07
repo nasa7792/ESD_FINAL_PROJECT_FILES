@@ -14,4 +14,4 @@
 ../Core/Src/NRF_DRIVER.c:186:7:NRD_SEND_CMD	1
 ../Core/Src/NRF_DRIVER.c:198:10:NRF_TX_DATA	4
 ../Core/Src/NRF_DRIVER.c:239:9:is_data_on_pipe	2
-../Core/Src/NRF_DRIVER.c:254:6:NRF_RECV_DATA	2
+../Core/Src/NRF_DRIVER.c:254:9:NRF_RECV_DATA	2

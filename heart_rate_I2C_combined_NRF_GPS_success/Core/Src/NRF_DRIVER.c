@@ -9,7 +9,6 @@
 	#include"delay.h"
 	#include"SPI.h"
 	#include"utilities.h"
-#include<stdio.h>
 
 
 void print(uint8_t data[], uint32_t len)
@@ -26,6 +25,8 @@ void init_CSN_CE_PINS(){
 	RCC->AHB1ENR|=RCC_AHB1ENR_GPIOAEN;
 	MODIFY_FIELD(GPIOA->MODER, GPIO_MODER_MODER4, ESF_GPIO_MODER_OUTPUT); // NSS pin for now4 as outpu
 	MODIFY_FIELD(GPIOA->MODER, GPIO_MODER_MODER0, ESF_GPIO_MODER_OUTPUT); // NSS pin for now4 as outpu
+	MODIFY_FIELD(GPIOB->MODER, GPIO_MODER_MODER6, ESF_GPIO_MODER_OUTPUT); // no ack led
+
 }
 
 
@@ -216,12 +217,10 @@ void init_CSN_CE_PINS(){
 		status_reg=NRF_READ_REGISTER(STATUS);
 
 		char ack_Recv[32];
-		printf("tx_fifo_stat is - %d",tx_fifo_stat);
-		printf("status register- %d",status_reg);
 		NRF_ENABLE();
 		delay(10);
 		if(is_data_on_pipe(0)==1){
-			printf("maybe ack  1? \n \r");
+			print_success("ACK RECIEVED FROM PRX NODE ! \n \r");
 			NRF_RECV_DATA(ack_Recv);
 			print(ack_Recv,32);
 		}
@@ -231,9 +230,6 @@ void init_CSN_CE_PINS(){
 			if(is_data_on_pipe(0)==1){
 				printf("maybe ack ? \n \r");
 			}
-			if(is_data_on_pipe(1)==1){
-				printf("maybe ack ? \n \r");
-			}
 			cmd=FLUSH_TX;
 			NRD_SEND_CMD(cmd);
 			NRF_WRITE_REGISTER(FIFO_STATUS, 0x11); //reset fifo
@@ -241,11 +237,15 @@ void init_CSN_CE_PINS(){
 		}
 
 		if(status_reg &(1<<4)){
-			printf("max number of retransmission \n \r %d \n \r",status_reg);
+			print_error("\n\rMax number of retransmission Reached !\n \r");
+			GPIOB->BSRR |=GPIO_BSRR_BS_6;
+			delay(300);
+			GPIOB->BSRR |=GPIO_BSRR_BR_6;
+			delay(300);
 			status_reg=status_reg|(1<<4)|(1<<5);
 			NRF_WRITE_REGISTER(STATUS,status_reg);
 			status_reg=NRF_READ_REGISTER(STATUS);
-			printf("after clearing flag? %d \n \r",status_reg);
+			print_info("Clearing MAX retransmission flag ! \n \r");
 			cmd=FLUSH_TX;
 		 NRD_SEND_CMD(cmd);
 		NRF_WRITE_REGISTER(FIFO_STATUS, 0x11); //reset fifo
@@ -283,7 +283,6 @@ void NRF_RECV_DATA(uint8_t *data_ptr_RECV){
 	//f
 	uint8_t cmd = R_RX_PL_WID;
 	uint8_t payLoad_width=0;
-	printf("\n ACK RECIEVED! ");
 	CSN_SELECT_NRF();
 	//payLoad_width=NRF_SEND_PAYLOAD_WIDTH_READ(cmd);
 	//printf("\n \r  payloadWidth %d \n \r",payLoad_width);

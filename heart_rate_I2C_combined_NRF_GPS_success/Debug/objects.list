@@ -4,6 +4,7 @@
 "./Core/Src/NRF_DRIVER.o"
 "./Core/Src/SPI.o"
 "./Core/Src/fatfs_sd_card.o"
+"./Core/Src/formated_printf.o"
 "./Core/Src/gps.o"
 "./Core/Src/main.o"
 "./Core/Src/max_heart_sensor_driver.o"

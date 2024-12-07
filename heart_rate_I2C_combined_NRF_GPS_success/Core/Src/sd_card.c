@@ -2,6 +2,7 @@
 
 #include "sd_card.h"
 #include "fatfs.h"
+#include"formated_printf.h"
 
 void process_SD_card(char log_str[])
 {
@@ -19,7 +20,7 @@ void process_SD_card(char log_str[])
       printf("No SD Card found : (%i)\r\n", fres);
       break;
     }
-    printf("SD Card Mounted Successfully!!!\r\n");
+    print_success("SD Card Mounted Successfully!!!\r\n");
 
     //Read the SD Card Total size and Free Size
     FATFS *pfs;
@@ -41,7 +42,7 @@ void process_SD_card(char log_str[])
       break;
     }
 
-    printf("Writing data!!!\r\n");
+    printf("\n \r Writing data!!!\r\n");
     //write the data
     f_puts(log_str,&fil);
 
@@ -59,7 +60,7 @@ void process_SD_card(char log_str[])
     //read the data
     f_gets(buf, sizeof(buf), &fil);
 
-    printf("Read Data : %s\n", buf);
+   // printf("Read Data : %s\n", buf);
 
     //close your file
     f_close(&fil);

@@ -32,7 +32,8 @@ Core/Src/state_machine.o: ../Core/Src/state_machine.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Core/Inc/NMEA.h ../Core/Inc/sd_card.h ../Core/Inc/NRF_DRIVER.h \
- ../Core/Inc/SPI.h ../Core/Inc/NRF_DRIVER.h
+ ../Core/Inc/SPI.h ../Core/Inc/NRF_DRIVER.h ../Core/Inc/formated_printf.h \
+ ../Core/Inc/formated_printf.h
 ../Core/Inc/state_machine.h:
 ../Core/Inc/max_heart_sensor_driver.h:
 ../Core/Inc/I2C_driver.h:
@@ -74,3 +75,5 @@ Core/Src/state_machine.o: ../Core/Src/state_machine.c \
 ../Core/Inc/NRF_DRIVER.h:
 ../Core/Inc/SPI.h:
 ../Core/Inc/NRF_DRIVER.h:
+../Core/Inc/formated_printf.h:
+../Core/Inc/formated_printf.h:

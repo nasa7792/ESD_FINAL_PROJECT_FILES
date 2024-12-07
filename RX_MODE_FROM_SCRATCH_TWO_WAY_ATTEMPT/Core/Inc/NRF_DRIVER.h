@@ -73,7 +73,7 @@ void NRF_PTX_CONFIG(uint8_t *Address, uint8_t channel);
 void NRF_PRX_CONFIG(uint8_t *Address, uint8_t channel);
 void NRD_SEND_CMD(uint8_t cmd);
 uint8_t NRF_TX_DATA(uint8_t *data_ptr);
-void NRF_RECV_DATA(uint8_t *data_ptr_RECV);
+uint8_t NRF_RECV_DATA(uint8_t *data_ptr_RECV);
 uint8_t is_data_on_pipe(uint8_t pipe);
 uint8_t NRF_SEND_PAYLOAD_WIDTH_READ(uint8_t cmd);
 

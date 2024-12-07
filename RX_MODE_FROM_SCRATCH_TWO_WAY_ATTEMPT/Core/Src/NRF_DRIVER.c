@@ -149,7 +149,7 @@ void init_CSN_CE_PINS(){
 
 
 	void NRF_INIT(){
-		SPI_INIT(); //initalize spi comms
+		//SPI_INIT(); //initalize spi comms
 		init_CSN_CE_PINS();
 		NRF_DISABLE();
 		nrf24_reset(0);
@@ -251,7 +251,7 @@ return 0;
 }
 
 
-void NRF_RECV_DATA(uint8_t *data_ptr_RECV){
+uint8_t NRF_RECV_DATA(uint8_t *data_ptr_RECV){
 
 	uint8_t status_reg=NRF_READ_REGISTER(STATUS);
 	uint8_t tx_fifo_stat=NRF_READ_REGISTER(FIFO_STATUS);
@@ -298,7 +298,7 @@ void NRF_RECV_DATA(uint8_t *data_ptr_RECV){
 	}
 
 
-
+return payLoad_width;
 
 }
 

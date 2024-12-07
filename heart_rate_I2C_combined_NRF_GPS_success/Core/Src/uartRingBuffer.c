@@ -16,7 +16,7 @@ extern UART_HandleTypeDef huart1;
 
 #define uart &huart1
 
-#define TIMEOUT_DEF 500  // 500ms timeout for the functions
+#define TIMEOUT_DEF 2000  // 500ms timeout for the functions
 uint16_t timeout;
 
 /* put the following in the ISR

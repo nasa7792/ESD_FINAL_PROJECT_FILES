@@ -28,7 +28,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h \
  ../Core/Inc/utilities.h ../Core/Inc/delay.h ../Core/Inc/SPI.h \
  ../Core/Inc/utilities.h ../Core/Inc/NRF_DRIVER.h ../Core/Inc/SPI.h \
- ../Core/Inc/NRF_DRIVER.h
+ ../Core/Inc/NRF_DRIVER.h ../Core/Inc/st7789_lcd_functions.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -64,3 +64,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/NRF_DRIVER.h:
 ../Core/Inc/SPI.h:
 ../Core/Inc/NRF_DRIVER.h:
+../Core/Inc/st7789_lcd_functions.h:

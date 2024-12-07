@@ -182,50 +182,6 @@ uint16_t check_new_data(){
 		         ir_led &= 0x03FFFF; // Mask to 18 bits
 		         sense.IR[sense.head] = ir_led;
 
-
-/*
-		         uint8_t temp[sizeof(uint32_t)]; //Array of 4 bytes that we will convert into long
-		         uint32_t tempLong;
-
-		         //Burst read three bytes - RED
-		         uint8_t temp_holder;
-		         temp[3] = 0;
-		         MAX30102_READ_REGISTER(FIFO_DATA_REG,&temp_holder,1);
-		         //printf("what is going on %d \n \r",temp_holder);
-		         temp[2]=temp_holder;
-		         MAX30102_READ_REGISTER(FIFO_DATA_REG,&temp_holder,1);
-		         //printf("what is going on %d \n \r",temp_holder);
-		         temp[1]=temp_holder;
-		         MAX30102_READ_REGISTER(FIFO_DATA_REG,&temp_holder,1);
-		        // printf("what is going on %d \n \r",temp_holder);
-		         temp[0]=temp_holder;
-		         //Convert array to long
-		         memcpy(&tempLong, temp, sizeof(tempLong));
-
-		 		tempLong &= 0x3FFFF; //Zero out all but 18 bits
-		 		//printf("what is going on %d \n \r",temp_holder);
-
-		         sense.red[sense.head] = tempLong; //Store this reading into the sense array
-
-		         temp[3] = 0;
-			     MAX30102_READ_REGISTER(FIFO_DATA_REG,&temp_holder,1);
-			     temp[2]=temp_holder;
-			     MAX30102_READ_REGISTER(FIFO_DATA_REG,&temp_holder,1);
-			     temp[1]=temp_holder;
-			     MAX30102_READ_REGISTER(FIFO_DATA_REG,&temp_holder,1);
-			     temp[0]=temp_holder;
-			         //Convert array to long
-
-
-		           //Convert array to long
-		           memcpy(&tempLong, temp, sizeof(tempLong));
-
-		 		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
-
-		 		  sense.IR[sense.head] = tempLong;
-
-*/
-
 		         toGet -= 2 * 3;
 		       }
 
@@ -336,13 +292,14 @@ void acquire_max_30102_data(uint32_t num_ters,int8_t* heart_rate_status,int32_t*
 	      redBuffer[i] = getRed();
 	      irBuffer[i] = getIR();
 	     nextSample(); //We're finished with this sample so move to next sample
-
+/*
 	     printf("\n \r HEARATE =%ld",*heart_rate_var);
 	     printf(" is valid HEARATE =%d",*heart_rate_status);
 	 	 printf(" spo2 =%ld",*spo2_var);
 	     printf(" is valid spo2 =%d",*valid_spo2);
 		 printf(" red =%ld",redBuffer[i]);
 		 printf(" IR valid spo2 =%ld",irBuffer[i]);
+*/
 		    if(*valid_spo2==1){
 			    	*status=true;
 			    return ;

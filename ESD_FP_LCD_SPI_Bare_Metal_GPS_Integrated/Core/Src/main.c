@@ -520,10 +520,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  const char name[]="Hi esd project";
+  ST7789_WriteString(10, 20, &name, Font_11x18, RED, WHITE);
   while (1)
   {
     /* USER CODE END WHILE */
-	parse_gps_output();
+	//parse_gps_output();
 
     /* USER CODE BEGIN 3 */
   }

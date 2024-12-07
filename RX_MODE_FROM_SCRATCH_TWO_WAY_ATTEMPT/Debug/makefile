@@ -61,8 +61,8 @@ all: main-build
 main-build: RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.elf secondary-outputs
 
 # Tool invocations
-RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.elf RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.map: $(OBJS) $(USER_OBJS) C:\Users\Asus\STM32CubeIDE\workspace_1.15.1\RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Asus\STM32CubeIDE\workspace_1.15.1\RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.elf RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.map: $(OBJS) $(USER_OBJS) Z:\ESD_FINAL_PROJECT_FILES\RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"Z:\ESD_FINAL_PROJECT_FILES\RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

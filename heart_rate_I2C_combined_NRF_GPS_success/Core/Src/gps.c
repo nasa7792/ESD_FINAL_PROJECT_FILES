@@ -1,7 +1,7 @@
 
 
 #include "gps.h"
-
+#include"formated_printf.h"
 
 
 char GGA[100];
@@ -27,7 +27,7 @@ void parse_gps_output(float *latitude, char *NS, float *longitude, char *EW)
 		  else flagGGA = 1;  // 1 indicates the data is invalid
 	  }
 	  else{
-		  printf("timeout of gps return \n \r");
+		  print_error("TIMEOUT of GPS ! \n \r");
 		  return;
 	  }
 
@@ -37,10 +37,11 @@ void parse_gps_output(float *latitude, char *NS, float *longitude, char *EW)
 
 		  sprintf (gpsBuffer, "%.2f%c,%.2f%c  ", gpsData.ggastruct.lcation.latitude, gpsData.ggastruct.lcation.NS,\
 				  gpsData.ggastruct.lcation.longitude, gpsData.ggastruct.lcation.EW);
-		  printf("\n \r Gps data is %s \n \r",gpsBuffer);
+		  print_success("\n\rGPS DATA SUCCESS");
+		  print_success(gpsBuffer);
 		    // Use sscanf to extract the values
 		  if (sscanf(gpsBuffer, "%f%c,%f%c", latitude, NS, longitude, EW) != 4) {
-			printf("Error: Unable to parse the input string.\n");
+			  print_error("Error: Unable to parse the input string.\n");
 		  }
 	  }
 }

@@ -12,6 +12,7 @@
 #include"utilities.h"
 #include<stm32f411xe.h>
 #include"SPI.h"
+#include"formated_printf.h"
 
 
 #include "stdint.h"

@@ -35,24 +35,7 @@ void test_configure_btn_interupt(){
 
 }
 
-const char* convert_uint8_to_char(const uint8_t* uint8_array, size_t length) {
-    // Allocate memory for the resulting char array
-    static char char_array[256];  // Ensure the size is sufficient for your use case
-    if (length >= sizeof(char_array)) {
-        length = sizeof(char_array) - 1; // Prevent overflow
-    }
 
-    // Copy data from uint8_t array to char array
-    for (size_t i = 0; i < length; i++) {
-        char_array[i] = (char)uint8_array[i];
-    }
-
-    // Null-terminate the string
-    char_array[length] = '\0';
-
-    // Return as a const char*
-    return char_array;
-}
 
 volatile char ack_payload[10];
 
@@ -62,13 +45,12 @@ void SystemClock_Config(void);
 void print(uint8_t data[], uint32_t len)
 	{
 	int i=0;
-	while(data[i]){
+	while(len--){
 		putchar(data[i]);
 		i++;
 	}
 	printf("\n \r");
 	}
-
 // EXTI1 interrupt handler
 void EXTI1_IRQHandler(void) {
     if (EXTI->PR & EXTI_PR_PR1) { // Check if EXTI1 triggered
@@ -79,11 +61,33 @@ void EXTI1_IRQHandler(void) {
     }
 }
 
+void  lcd_initial_characters(){
+uint8_t rotate=0;
+rotate=0x60;
+ST7789_WriteCommand(ST7789_MADCTL);
+ST7789_WriteSmallData(rotate);
+ST7789_DrawImage(20,20,40,40,image_data_Image);
+ST7789_DrawImage(20,70,40,40,spo2_image);
+ST7789_DrawImage(20,120,40,40,EARTH_IMAGE);
+}
+
+
+void convert_to_str(uint8_t RxData[],int recv_width,char str[]){
+int i=0;
+while(recv_width--){
+	str[i]=RxData[i];
+	i++;
+}
+str[i]='\0';
+}
+
+
 int main(void)
 {
 
 SystemClock_Config();
-delay(6000);
+ST7789_Init();
+delay(3000);
 uint8_t RxAddress[] = {0xB3,0xB4,0xB5,0xB6,0x05};
 uint8_t RxData[32] ;
 uint8_t channel=10;
@@ -97,14 +101,57 @@ for(int i=0;i<=0x1D;i++){
 	printf("\n \r register %x is value %x \n \r",i,NRF_READ_REGISTER(i));
 }
 
+lcd_initial_characters();
+
 while(1){
 	if(is_data_on_pipe(0)==1){
 		printf("\n \r recieved data \n \r");
-		NRF_RECV_DATA(RxData);
-		print(RxData,32);
-		const char* result = convert_uint8_to_char(RxData, 32);
-		ST7789_WriteString(10, 20, result, Font_11x18, RED, WHITE); // Display Data on LCD
+		uint8_t recv_width=NRF_RECV_DATA(RxData);
+		print(RxData,recv_width);
+		char str[32];
+		convert_to_str(RxData,recv_width,str);
+		char *delimeter="-";
+		char* tok=strtok(str,delimeter);
+		char clear_section[10];
+		   memset(clear_section, ' ', sizeof(clear_section));
+		char heart_rate_data[10]={0};
+		char spo2_data[10]={0};
+		char gps_data_lat[10]={0};
+		char gps_data_long[10]={0};
+		int count_tok=0;
+		while(tok!=NULL){
+			printf("tok %s \n \r",tok);
+			count_tok++;
+			if(count_tok==1 && tok[0]=='H'){
+				memset(heart_rate_data,0,10);
+				strcpy(heart_rate_data,tok+1);
+			}
+			else if(count_tok==2 && tok[0]=='O'){
+				memset(spo2_data,0,10);
+				strcpy(spo2_data,tok+1);
+			}
+			else if(count_tok==3 && tok[0]=='G'){
+				char *delim=",";
+				char* tok2=strtok(tok+1,delim);
+				strcpy(gps_data_lat,tok2);
+				tok2=strtok(NULL,delim);
+				strcpy(gps_data_long,tok2);
+			}
+			tok=strtok(NULL,delimeter);
+
+		}
+	//first clear previous text
+	ST7789_WriteString(100, 20, clear_section, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
+	ST7789_WriteString(100, 80, clear_section, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
+	ST7789_WriteString(100, 120, clear_section, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
+	ST7789_WriteString(100, 140, clear_section, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
+
+	ST7789_WriteString(100, 20, heart_rate_data, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
+	ST7789_WriteString(100, 80, spo2_data, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
+	ST7789_WriteString(100, 120, gps_data_lat, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
+	ST7789_WriteString(100, 140, gps_data_long, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
 	}
+
 }
 
 }

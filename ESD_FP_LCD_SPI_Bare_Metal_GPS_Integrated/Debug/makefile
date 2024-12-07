@@ -60,8 +60,8 @@ all: main-build
 main-build: ESD_FP_LCD_SPI_Bare_Metal.elf secondary-outputs
 
 # Tool invocations
-ESD_FP_LCD_SPI_Bare_Metal.elf ESD_FP_LCD_SPI_Bare_Metal.map: $(OBJS) $(USER_OBJS) C:\Users\abhir\STM32CubeIDE\workspace_1.15.1\ESD_FP_LCD_SPI_Bare_Metal\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "ESD_FP_LCD_SPI_Bare_Metal.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\abhir\STM32CubeIDE\workspace_1.15.1\ESD_FP_LCD_SPI_Bare_Metal\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ESD_FP_LCD_SPI_Bare_Metal.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+ESD_FP_LCD_SPI_Bare_Metal.elf ESD_FP_LCD_SPI_Bare_Metal.map: $(OBJS) $(USER_OBJS) Z:\ESD_FINAL_PROJECT_FILES\ESD_FP_LCD_SPI_Bare_Metal_GPS_Integrated\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "ESD_FP_LCD_SPI_Bare_Metal.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"Z:\ESD_FINAL_PROJECT_FILES\ESD_FP_LCD_SPI_Bare_Metal_GPS_Integrated\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ESD_FP_LCD_SPI_Bare_Metal.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
