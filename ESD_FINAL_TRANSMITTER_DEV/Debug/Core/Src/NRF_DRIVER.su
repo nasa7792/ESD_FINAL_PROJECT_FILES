@@ -13,7 +13,7 @@
 ../Core/Src/NRF_DRIVER.c:115:7:nrf24_reset	40	static
 ../Core/Src/NRF_DRIVER.c:161:7:NRF_INIT	8	static
 ../Core/Src/NRF_DRIVER.c:193:7:NRD_SEND_CMD	16	static
-../Core/Src/NRF_DRIVER.c:205:10:NRF_TX_DATA	56	static
+../Core/Src/NRF_DRIVER.c:205:10:NRF_TX_DATA	24	static
 ../Core/Src/NRF_DRIVER.c:259:9:is_data_on_pipe	24	static
 ../Core/Src/NRF_DRIVER.c:270:9:NRF_SEND_PAYLOAD_WIDTH_READ	24	static
 ../Core/Src/NRF_DRIVER.c:282:6:NRF_RECV_DATA	24	static

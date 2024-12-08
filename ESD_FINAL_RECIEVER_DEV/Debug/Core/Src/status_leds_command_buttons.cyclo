@@ -1,0 +1,4 @@
+../Drivers/CMSIS/Include/core_cm4.h:1684:22:__NVIC_EnableIRQ	2
+../Drivers/CMSIS/Include/core_cm4.h:1814:22:__NVIC_SetPriority	2
+../Core/Src/status_leds_command_buttons.c:14:6:setup_enable_status_leds	1
+../Core/Src/status_leds_command_buttons.c:22:7:command_button_config	1

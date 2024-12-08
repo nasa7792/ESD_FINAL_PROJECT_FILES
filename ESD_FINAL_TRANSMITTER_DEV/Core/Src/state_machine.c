@@ -10,6 +10,8 @@
 #include"NRF_DRIVER.h"
 #include"formated_printf.h"
 
+extern volatile char command_ack[32];
+
 
 
 void FSM_INIT(StateMachine *sm){
@@ -49,7 +51,14 @@ void execute_sm(StateMachine *sm){
 
 		case STATE_GPS_DATA_ACQUIRE:
 			print_info("State machine Status: Acquire GPS Data \n \r");
+			if(strcmp(command_ack,"DIS_GPS")==0){
+				printf("GPS Is disabled ! \n \r");
+				sm->gps_lat=0.0;
+				sm->gps_long=0.0;
+			}
+			else{
 			parse_gps_output(&(sm->gps_lat), &(sm->dir1), &(sm->gps_long), &(sm->dir2));
+			}
 			sm->current_state=STATE_PACKET_FORMATION;
 			break;
 

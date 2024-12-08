@@ -36,7 +36,6 @@ void init_CSN_CE_PINS(){
 	}
 
 
-
 	void NRF_WRITE_REGISTER(uint8_t REG_ADDRESS,uint8_t data){
 		uint8_t trans_buff[2];
 		trans_buff[0]=REG_ADDRESS|W_REGISTER;
@@ -151,6 +150,7 @@ void init_CSN_CE_PINS(){
 	void NRF_INIT(){
 		//SPI_INIT(); //initalize spi comms
 		init_CSN_CE_PINS();
+		setup_enable_status_leds();
 		NRF_DISABLE();
 		nrf24_reset(0);
 		NRF_WRITE_REGISTER(CONFIG, 0);  // will be configured later
@@ -239,13 +239,9 @@ void init_CSN_CE_PINS(){
 uint8_t is_data_on_pipe(uint8_t pipenum){
 uint8_t status_reg=NRF_READ_REGISTER(STATUS);
 
-//if 6 th bit is set and respective data pipe is set
-//printf("reciever status %d \n \r",status_reg);
 if((status_reg & (1<<6))){
-
-//clear rx_dr
 	NRF_WRITE_REGISTER(STATUS,(1<<6));
-	return 1; //data recieved
+	return 1;
 }
 return 0;
 }

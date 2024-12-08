@@ -35,34 +35,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT
+BUILD_ARTIFACT_NAME := ESD_FINAL_RECEIEVER_DEV
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.elf \
+ESD_FINAL_RECEIEVER_DEV.elf \
 
 MAP_FILES += \
-RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.map \
+ESD_FINAL_RECEIEVER_DEV.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.list \
+ESD_FINAL_RECEIEVER_DEV.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.elf secondary-outputs
+main-build: ESD_FINAL_RECEIEVER_DEV.elf secondary-outputs
 
 # Tool invocations
-RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.elf RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.map: $(OBJS) $(USER_OBJS) Z:\ESD_FINAL_PROJECT_FILES\RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"Z:\ESD_FINAL_PROJECT_FILES\RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+ESD_FINAL_RECEIEVER_DEV.elf ESD_FINAL_RECEIEVER_DEV.map: $(OBJS) $(USER_OBJS) Z:\ESD_FINAL_PROJECT_FILES\ESD_FINAL_RECIEVER_DEV\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "ESD_FINAL_RECEIEVER_DEV.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"Z:\ESD_FINAL_PROJECT_FILES\ESD_FINAL_RECIEVER_DEV\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ESD_FINAL_RECEIEVER_DEV.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -71,14 +71,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.list"
+ESD_FINAL_RECEIEVER_DEV.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "ESD_FINAL_RECEIEVER_DEV.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.elf RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.list RX_MODE_FROM_SCRATCH_TWO_WAY_ATTEMPT.map default.size.stdout
+	-$(RM) ESD_FINAL_RECEIEVER_DEV.elf ESD_FINAL_RECEIEVER_DEV.list ESD_FINAL_RECEIEVER_DEV.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

@@ -7,36 +7,8 @@
 #include"SPI.h"
 #include"NRF_DRIVER.h"
 #include<string.h>
-#include"utilities.h"
 #include "st7789_lcd_functions.h"
-
-void test_configure_btn_interupt(){
-    // Configure PA1 as input
-    // Configure PA1 as input
-    GPIOA->MODER &= ~GPIO_MODER_MODER1; // Clear mode bits for PA1 (set as input)
-    // Configure PA1 as input with pull-up
-    GPIOA->MODER &= ~GPIO_MODER_MODER1; // Input mode
-    GPIOA->PUPDR &= ~GPIO_PUPDR_PUPDR1; // Clear pull-up/down bits
-    GPIOA->PUPDR |= GPIO_PUPDR_PUPDR1_0; // Enable pull-up
-
-    RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
-
-    // Configure PA1 as the source for EXTI1
-    SYSCFG->EXTICR[0] &= ~SYSCFG_EXTICR1_EXTI1;
-    SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI1_PA;
-
-    // Configure EXTI1 for falling edge trigger and unmask it
-    EXTI->IMR |= EXTI_IMR_MR1;     // Unmask EXTI1
-    EXTI->FTSR |= EXTI_FTSR_TR1;   // Falling edge trigger
-
-    // Enable EXTI1 interrupt in NVIC
-    NVIC_EnableIRQ(EXTI1_IRQn);
-    NVIC_SetPriority(EXTI1_IRQn, 2); // Set priority
-
-}
-
-
-
+#include"status_leds_command_buttons.h"
 volatile char ack_payload[10];
 
 void SystemClock_Config(void);
@@ -51,16 +23,42 @@ void print(uint8_t data[], uint32_t len)
 	}
 	printf("\n \r");
 	}
-// EXTI1 interrupt handler
-void EXTI1_IRQHandler(void) {
-    if (EXTI->PR & EXTI_PR_PR1) { // Check if EXTI1 triggered
-        printf("Hi, I am pressed!\r\n");
-        strcpy(ack_payload, "disable");
-        // Clear the interrupt pending bit
-        EXTI->PR = EXTI_PR_PR1;
+void EXTI9_5_IRQHandler(void) {
+	static int i=0;
+	static int j=0;
+
+    if (EXTI->PR & EXTI_PR_PR6) { // Check if interrupt occurred on PC6
+        EXTI->PR = EXTI_PR_PR6;   // Clear interrupt flag for PC6
+    	i++;
+        if(i%2==1){
+         printf("\n \r disabling GPS \n \r");
+        GPIOA->BSRR |=MAX30102_OFF_INDICATOR;
+        strcpy(ack_payload,DISABLE_GPS_COMMAND);
+        }
+        else{
+       	 printf("\n \r enabling GPS \n \r");
+        	 GPIOA->BSRR |=MAX30102_ON_INDICATOR;
+        	 strcpy(ack_payload, ACK_DEF_COMMAND);
+        }
+        // Handle PC6 button press logic here
+    }
+
+    if (EXTI->PR & EXTI_PR_PR7) { // Check if interrupt occurred on PC7
+    	j++;
+        EXTI->PR = EXTI_PR_PR7;   // Clear interrupt flag for PC7
+        if(j%2==1){
+        printf("\n \r disabling MAX \n \r");
+        GPIOA->BSRR |=GPS_OFF_INDICATOR;
+        strcpy(ack_payload,DISABLE_MAX_COMMAND);
+        }
+        else{
+        	 printf("\n \r enabling MAX \n \r");
+        	 GPIOA->BSRR |=GPS_ON_INDICATOR;
+        	 strcpy(ack_payload, ACK_DEF_COMMAND);
+
     }
 }
-
+}
 void  lcd_initial_characters(){
 uint8_t rotate=0;
 rotate=0x60;
@@ -92,10 +90,10 @@ uint8_t RxAddress[] = {0xB3,0xB4,0xB5,0xB6,0x05};
 uint8_t RxData[32] ;
 uint8_t channel=10;
 usart_init();
-strcpy(ack_payload, "ack_def");
+strcpy(ack_payload, ACK_DEF_COMMAND);
 NRF_INIT();
 NRF_PRX_CONFIG(RxAddress,channel);
-test_configure_btn_interupt();
+command_button_config();
 printf("\n \rsetting up as PRX dynamic payload attemp \n \r");
 for(int i=0;i<=0x1D;i++){
 	printf("\n \r register %x is value %x \n \r",i,NRF_READ_REGISTER(i));
@@ -125,6 +123,7 @@ while(1){
 			if(count_tok==1 && tok[0]=='H'){
 				memset(heart_rate_data,0,10);
 				strcpy(heart_rate_data,tok+1);
+				printf("%s \n \r ",heart_rate_data);
 			}
 			else if(count_tok==2 && tok[0]=='O'){
 				memset(spo2_data,0,10);
@@ -141,10 +140,10 @@ while(1){
 
 		}
 	//first clear previous text
-	ST7789_WriteString(100, 20, clear_section, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
-	ST7789_WriteString(100, 80, clear_section, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
-	ST7789_WriteString(100, 120, clear_section, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
-	ST7789_WriteString(100, 140, clear_section, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
+	 ST7789_WriteString(100, 20, clear_section, Font_11x18, LIGHT_BLUE, LIGHT_BLUE); // Display Data on LCD
+	 ST7789_WriteString(100, 80, clear_section, Font_11x18, LIGHT_BLUE, LIGHT_BLUE); // Display Data on LCD
+	 ST7789_WriteString(100, 120, clear_section, Font_11x18, LIGHT_BLUE, LIGHT_BLUE); // Display Data on LCD
+	 ST7789_WriteString(100, 140, clear_section, Font_11x18, LIGHT_BLUE, LIGHT_BLUE); // Display Data on LCD
 
 	ST7789_WriteString(100, 20, heart_rate_data, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
 	ST7789_WriteString(100, 80, spo2_data, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD

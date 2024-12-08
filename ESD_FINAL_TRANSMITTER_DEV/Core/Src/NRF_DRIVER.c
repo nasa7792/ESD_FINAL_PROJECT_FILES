@@ -9,7 +9,7 @@
 	#include"delay.h"
 	#include"SPI.h"
 	#include"utilities.h"
-
+	volatile char command_ack[32];
 
 void print(uint8_t data[], uint32_t len)
 	{
@@ -216,13 +216,13 @@ void init_CSN_CE_PINS(){
 		tx_fifo_stat=NRF_READ_REGISTER(FIFO_STATUS);
 		status_reg=NRF_READ_REGISTER(STATUS);
 
-		char ack_Recv[32];
+
 		NRF_ENABLE();
 		delay(10);
 		if(is_data_on_pipe(0)==1){
 			print_success("ACK RECIEVED FROM PRX NODE ! \n \r");
-			NRF_RECV_DATA(ack_Recv);
-			print(ack_Recv,32);
+			NRF_RECV_DATA(command_ack);
+			print(command_ack,32);
 		}
 
 
