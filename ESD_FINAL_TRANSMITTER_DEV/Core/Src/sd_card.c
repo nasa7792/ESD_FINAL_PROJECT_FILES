@@ -20,7 +20,7 @@ void process_SD_card(char log_str[])
       printf("No SD Card found : (%i)\r\n", fres);
       break;
     }
-    print_success("SD Card Mounted Successfully!!!\r\n");
+    print_success("SD Card Mounted Successfully!\r\n");
 
     //Read the SD Card Total size and Free Size
     FATFS *pfs;
@@ -31,18 +31,18 @@ void process_SD_card(char log_str[])
     totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize * 0.5);
     freeSpace = (uint32_t)(fre_clust * pfs->csize * 0.5);
 
-    printf("TotalSpace : %lu bytes, FreeSpace = %lu bytes\n", totalSpace, freeSpace);
-
     //Open the file
     //FA_OPEN_APPEND  | FA_WRITE
-    fres = f_open(&fil, "packman.txt", FA_OPEN_APPEND| FA_WRITE);
+    fres = f_open(&fil, "logger.txt", FA_OPEN_APPEND| FA_WRITE);
     if(fres != FR_OK)
     {
       printf("File creation/open Error : (%i)\r\n", fres);
       break;
     }
 
-    printf("\n \r Writing data!!!\r\n");
+    printf("\n\rWriting data to logger.txt!\r\n");
+    strcat(log_str, "\n\r");
+
     //write the data
     f_puts(log_str,&fil);
 
@@ -50,7 +50,7 @@ void process_SD_card(char log_str[])
     f_close(&fil);
 
     //Open the file
-    fres = f_open(&fil, "gps_data.txt", FA_READ);
+    fres = f_open(&fil, "logger.txt", FA_READ);
     if(fres != FR_OK)
     {
       printf("File opening Error : (%i)\r\n", fres);
@@ -60,11 +60,9 @@ void process_SD_card(char log_str[])
     //read the data
     f_gets(buf, sizeof(buf), &fil);
 
-   // printf("Read Data : %s\n", buf);
-
     //close your file
     f_close(&fil);
-    printf("Closing File!!!\r\n");
+    printf("\n\rClosing File!\r\n");
 #if 0
     //Delete the file.
     fres = f_unlink(EmbeTronicX.txt);
@@ -77,6 +75,6 @@ void process_SD_card(char log_str[])
 
   //We're done, so de-mount the drive
   f_mount(NULL, "", 0);
-  printf("SD Card Unmounted Successfully!!!\r\n");
+  printf("\n\rSD Card Unmounted Successfully!\r\n");
 }
 
