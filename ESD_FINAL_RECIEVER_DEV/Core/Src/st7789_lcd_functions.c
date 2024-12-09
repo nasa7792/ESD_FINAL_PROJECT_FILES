@@ -27,8 +27,7 @@
 #define CLOCK 16000000  // Assume 16 MHz clock for APB2 (for USART1 and USART2)
 
 
-
-
+const FontDef Font_16x26 = {16, 26, Font16x26_array};
 const FontDef Font_11x18 = {11, 18, Font11x18_array};
 const tImage Image = { image_data_Image, 40, 40,
     16 };
@@ -53,6 +52,17 @@ void st7789_spi_init()
     // Set PB4, PB5, PB6, and PB7 to output mode (01)
 }
 
+void lcd_initial_characters(void)
+{
+	uint8_t rotate=0;
+	rotate=0x60;
+	ST7789_WriteCommand(ST7789_MADCTL);
+	ST7789_WriteSmallData(rotate);
+	ST7789_WriteString(20,20, "Wireless Sensor      Communication System", Font_11x18, GREEN, LIGHT_BLUE);
+	ST7789_DrawImage(20,80,40,40,image_data_Image);
+	ST7789_DrawImage(20,130,40,40,spo2_image);
+	ST7789_DrawImage(20,180,40,40,EARTH_IMAGE);
+}
 
 void ST7789_WriteCommand(uint8_t cmd)
 {
@@ -222,7 +232,7 @@ void ST7789_Init(void)
   	GPIOB->BSRR = GPIOB_BSRR_SET_PB4;  // Set PB4 high
 
   	delay(50);
-	ST7789_Fill_Color(LIGHT_BLUE);				//	Fill with Black.
+	ST7789_Fill_Color(LIGHT_BLUE);
 }
 
 void ST7789_DrawPixel(uint16_t x, uint16_t y, uint16_t color)
@@ -245,3 +255,14 @@ void ST7789_DrawImage(uint16_t x, uint16_t y, uint16_t width, uint16_t height, c
         }
     }
 }
+
+void convert_to_str(uint8_t RxData[],int recv_width,char str[])
+{
+	int i=0;
+	while(recv_width--){
+		str[i]=RxData[i];
+		i++;
+	}
+	str[i]='\0';
+}
+

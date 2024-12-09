@@ -268,12 +268,9 @@ uint8_t NRF_RECV_DATA(uint8_t *data_ptr_RECV){
 	//next comand to read payload
 	SPI_TX_MULTI( &cmd, 1);
 	SPI_READ_MULTI(&payLoad_width,1);//recieve width
-	printf("\n \r  payloadWidth %d \n \r",payLoad_width);
+	printf("\n\rPayload Width: %d\n\r",payLoad_width);
 	CSN_UNSELECT_NRF();
 	delay(10);
-
-	printf("status_reg here %d \n \r",status_reg);
-	printf("tx_fifo_stat here %d \n \r",tx_fifo_stat);
 
 	CSN_SELECT_NRF();
 	cmd=R_RX_PAYLOAD;
