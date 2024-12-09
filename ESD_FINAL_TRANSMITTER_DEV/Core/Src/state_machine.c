@@ -25,6 +25,7 @@ void FSM_INIT(StateMachine *sm){
 	sm->dir2=0;
 	sm->gps_lat=0.0;
 	sm->gps_long=0.0;
+	sm->temperature=0.0;
 }
 
 void execute_sm(StateMachine *sm){
@@ -34,19 +35,33 @@ void execute_sm(StateMachine *sm){
 			sm->spo2=0;
 			sm->heart_rate=0;
 			sm->valid_spo2=0;
+			sm->temperature=0.0;
 			print_info("\n \r State machine Status: Acquire Max30102 data \n \r");
+			if(strcmp(command_ack,"DIS_MAX")==0){
+				printf("MAX30102 Is disabled ! \n \r");
+				   MAX30102_WRITE_REGISTER(MODE_CONFIG_REG, 0x0); // spo2
+				sm->spo2=0.0;
+				sm->temperature=0.0;
+				sm->current_state=STATE_GPS_DATA_ACQUIRE;
+				break;
+			}
+			MAX30102_WRITE_REGISTER(MODE_CONFIG_REG, 0x3); // spo2
 			bool valid_data=false;
-			uint32_t timeout_val=2; //try for 10 seconds to get heart rate data
+			uint32_t timeout_val=1; //try for 10 seconds to get heart rate data
 			acquire_max_30102_data(timeout_val,&(sm->valid_heart_rate),&(sm->spo2),&(sm->heart_rate),&(sm->valid_spo2),&valid_data);
 			sm->current_state=STATE_GPS_DATA_ACQUIRE;
 			if(!valid_data){
 				print_error("TIMEOUT ENCOUNTERED! \n \r");
 			}
+
 			else{
 				 print_success("\n\rMAX30102 DATA SUCCESS \n \r");
-				 printf("Heart rate: %ld \n \r",sm->heart_rate);
 				 printf("Spo2 : %ld \n \r",sm->spo2);
 			}
+
+			MAX30102_Start_Temperature_Measurement();
+			sm->temperature =MAX30102_Read_Temperature();
+			printf("temperature value : %f \n \r",sm->temperature);
 			break;
 
 		case STATE_GPS_DATA_ACQUIRE:
@@ -63,19 +78,19 @@ void execute_sm(StateMachine *sm){
 			break;
 
 		case STATE_PACKET_FORMATION:
-			int hr=0;
+			float tempr=0;
 			int spo2=0;
 			char delimiter='-';
 			print_info("\n\rState machine Status: Packet formatting \n \r");
-			hr=sm->heart_rate;
+			tempr=sm->temperature;
 			spo2=sm->spo2;
 			int payload_idx=0;
-			sm->nrf_payload[payload_idx++]='H';
-			if(hr==-999 ||spo2==-999){
-				hr=0;spo2=0;
+			sm->nrf_payload[payload_idx++]='T';
+			if(spo2==-999){
+			spo2=0;
 			}
 			char temp_holder[10];
-			sprintf(temp_holder, "%d", hr);
+			sprintf(temp_holder, "%.2f", tempr);
 			int i=0;
 			while(temp_holder[i]){
 			sm->nrf_payload[payload_idx++]=temp_holder[i++];

@@ -252,14 +252,16 @@ uint8_t NRF_RECV_DATA(uint8_t *data_ptr_RECV){
 	uint8_t status_reg=NRF_READ_REGISTER(STATUS);
 	uint8_t tx_fifo_stat=NRF_READ_REGISTER(FIFO_STATUS);
 
+	uint8_t flush_tx=FLUSH_TX;
+	NRD_SEND_CMD(flush_tx);
+	delay(20);
 
-	//uint8_t ack[]="CUSTOM_ACK!";
 	CSN_SELECT_NRF();
 	uint8_t ack_cmd=W_ACK_PAYLOAD;
 	SPI_TX_MULTI( &ack_cmd, 1);
+	printf(" what is my payload ? %s \n \r",ack_payload);
 	SPI_TX_MULTI(ack_payload,sizeof(ack_payload));
 	CSN_UNSELECT_NRF();
-
 	delay(10);
 	uint8_t cmd = R_RX_PL_WID;
 	uint8_t payLoad_width=0;
@@ -281,7 +283,6 @@ uint8_t NRF_RECV_DATA(uint8_t *data_ptr_RECV){
 	cmd=FLUSH_RX;
 	delay(20);
 	NRD_SEND_CMD(cmd); //flush rx fifo
-
 	delay(10);
 
 	if(tx_fifo_stat&(1<<5)){

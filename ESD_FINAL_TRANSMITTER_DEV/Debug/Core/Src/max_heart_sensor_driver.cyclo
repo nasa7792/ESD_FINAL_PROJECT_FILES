@@ -13,4 +13,4 @@
 ../Core/Src/max_heart_sensor_driver.c:228:10:getRed	2
 ../Core/Src/max_heart_sensor_driver.c:237:10:getIR	2
 ../Core/Src/max_heart_sensor_driver.c:247:6:nextSample	2
-../Core/Src/max_heart_sensor_driver.c:255:6:acquire_max_30102_data	8
+../Core/Src/max_heart_sensor_driver.c:255:6:acquire_max_30102_data	9

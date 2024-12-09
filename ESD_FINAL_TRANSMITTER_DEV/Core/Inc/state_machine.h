@@ -35,6 +35,7 @@ typedef struct {
 	float gps_long;
 	char dir1;
 	char dir2;
+	float temperature;
     uint8_t nrf_payload[32];
 } StateMachine;
 

@@ -27,16 +27,19 @@
 #define CLOCK 16000000  // Assume 16 MHz clock for APB2 (for USART1 and USART2)
 
 
-const FontDef Font_16x26 = {16, 26, Font16x26_array};
+
 const FontDef Font_11x18 = {11, 18, Font11x18_array};
-const tImage Image = { image_data_Image, 40, 40,
-    16 };
+
 
 const tImage Earth_img = { EARTH_IMAGE, 40, 40,
     16 };
 
 const tImage Spo2 = { spo2_image, 40, 40,
     16 };
+
+const tImage thermo = { THERMO_IMAGE, 40, 40,
+    16 };
+
 
 void st7789_spi_init()
 {
@@ -59,7 +62,7 @@ void lcd_initial_characters(void)
 	ST7789_WriteCommand(ST7789_MADCTL);
 	ST7789_WriteSmallData(rotate);
 	ST7789_WriteString(20,20, "Wireless Sensor      Communication System", Font_11x18, GREEN, LIGHT_BLUE);
-	ST7789_DrawImage(20,80,40,40,image_data_Image);
+	ST7789_DrawImage(20,80,40,40,THERMO_IMAGE);
 	ST7789_DrawImage(20,130,40,40,spo2_image);
 	ST7789_DrawImage(20,180,40,40,EARTH_IMAGE);
 }

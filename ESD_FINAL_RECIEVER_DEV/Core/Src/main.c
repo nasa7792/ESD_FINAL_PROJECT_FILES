@@ -9,6 +9,7 @@
 #include <string.h>
 #include "st7789_lcd_functions.h"
 #include "status_leds_command_buttons.h"
+#include"formated_printf.h"
 volatile char ack_payload[10];
 
 void SystemClock_Config(void);
@@ -17,13 +18,13 @@ void EXTI9_5_IRQHandler(void)
 {
 	static int i=0;
 	static int j=0;
-
     if (EXTI->PR & EXTI_PR_PR6) { // Check if interrupt occurred on PC6
         EXTI->PR = EXTI_PR_PR6;   // Clear interrupt flag for PC6
     	i++;
         if(i%2==1){
         	print_error("\n\rDisabling GPS Module\n\r");
         	GPIOA->BSRR |=MAX30102_OFF_INDICATOR;
+
         	strcpy(ack_payload,DISABLE_GPS_COMMAND);
         }
         else{
@@ -48,6 +49,7 @@ void EXTI9_5_IRQHandler(void)
         	strcpy(ack_payload, ACK_DEF_COMMAND);
         }
     }
+
 }
 
 
@@ -87,10 +89,10 @@ int main(void)
 
 			while(tok!=NULL){
 				count_tok++;
-				if(count_tok==1 && tok[0]=='H'){
+				if(count_tok==1 && tok[0]=='T'){
 					memset(heart_rate_data,0,10);
 					strcpy(heart_rate_data,tok+1);
-					printf("\033[32m\n\rHeart Rate: %s\033[0m\n\r", heart_rate_data);
+					printf("\033[32m\n\rTemperature Value: %s\033[0m\n\r", heart_rate_data);
 				}
 
 				else if(count_tok==2 && tok[0]=='O'){

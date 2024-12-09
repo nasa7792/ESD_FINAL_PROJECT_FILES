@@ -1,6 +1,7 @@
 "./Core/Inc/delay.o"
 "./Core/Src/NRF_DRIVER.o"
 "./Core/Src/SPI.o"
+"./Core/Src/formated_printf.o"
 "./Core/Src/main.o"
 "./Core/Src/st7789_lcd_functions.o"
 "./Core/Src/status_leds_command_buttons.o"

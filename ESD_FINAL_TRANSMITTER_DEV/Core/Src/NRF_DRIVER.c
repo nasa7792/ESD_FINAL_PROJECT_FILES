@@ -26,7 +26,7 @@ void init_CSN_CE_PINS(){
 	MODIFY_FIELD(GPIOA->MODER, GPIO_MODER_MODER4, ESF_GPIO_MODER_OUTPUT); // NSS pin for now4 as outpu
 	MODIFY_FIELD(GPIOA->MODER, GPIO_MODER_MODER0, ESF_GPIO_MODER_OUTPUT); // NSS pin for now4 as outpu
 	MODIFY_FIELD(GPIOB->MODER, GPIO_MODER_MODER6, ESF_GPIO_MODER_OUTPUT); // no ack led
-
+	MODIFY_FIELD(GPIOB->MODER, GPIO_MODER_MODER7, ESF_GPIO_MODER_OUTPUT); //  ack led
 }
 
 
@@ -220,12 +220,16 @@ void init_CSN_CE_PINS(){
 		NRF_ENABLE();
 		delay(10);
 		if(is_data_on_pipe(0)==1){
+			GPIOB->BSRR |=GPIO_BSRR_BS_7;
+			delay(300);
+			GPIOB->BSRR |=GPIO_BSRR_BR_7;
+			delay(300);
 			print_success("ACK RECIEVED FROM PRX NODE ! \n \r");
 			NRF_RECV_DATA(command_ack);
 			print(command_ack,32);
 		}
 
-
+/*
 		if ((tx_fifo_stat&(1<<4)) && (!(tx_fifo_stat&(1<<3)))){
 			if(is_data_on_pipe(0)==1){
 				printf("maybe ack ? \n \r");
@@ -235,7 +239,7 @@ void init_CSN_CE_PINS(){
 			NRF_WRITE_REGISTER(FIFO_STATUS, 0x11); //reset fifo
 			return 1;
 		}
-
+*/
 		if(status_reg &(1<<4)){
 			print_error("\n\rMax number of retransmission Reached !\n \r");
 			GPIOB->BSRR |=GPIO_BSRR_BS_6;

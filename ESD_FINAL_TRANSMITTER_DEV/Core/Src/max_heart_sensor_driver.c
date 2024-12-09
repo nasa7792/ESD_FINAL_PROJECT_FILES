@@ -33,7 +33,7 @@ void MAX30102_init(){
 	    MAX30102_WRITE_REGISTER(LED2_PA_REG, 0x3c); // power set as 60
 
 	    //led mode 3 both ir and red led are needed
-	    MAX30102_WRITE_REGISTER(MODE_CONFIG_REG, 0x3); // power set as 60
+	    MAX30102_WRITE_REGISTER(MODE_CONFIG_REG, 0x3); // spo2
 
 	    //sample average as 4 and enable fifo rollover 0x50 0101 0000
 	    MAX30102_WRITE_REGISTER(FIFO_CONFIG_REG, 0x50); //
@@ -271,6 +271,10 @@ void acquire_max_30102_data(uint32_t num_ters,int8_t* heart_rate_status,int32_t*
 	    nextSample(); //We're finished with this sample so move to next sample
 	  }
 	  maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, spo2_var, valid_spo2, heart_rate_var, heart_rate_status);
+	    if(*valid_spo2==1){
+		    	*status=true;
+		    return ;
+		    }
 	//  uint32_t start_time = millis();
 	  while (--num_ters)
 	  {
