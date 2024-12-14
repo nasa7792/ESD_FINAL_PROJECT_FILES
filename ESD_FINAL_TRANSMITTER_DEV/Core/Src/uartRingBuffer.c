@@ -114,98 +114,11 @@ int Uart_read(void)
   }
 }
 
-/* writes a single character to the uart and increments head
- */
-void Uart_write(int c)
-{
-	if (c>=0)
-	{
-		int i = (_tx_buffer->head + 1) % UART_BUFFER_SIZE;
-		while (i == _tx_buffer->tail);
-
-		_tx_buffer->buffer[_tx_buffer->head] = (uint8_t)c;
-		_tx_buffer->head = i;
-
-		__HAL_UART_ENABLE_IT(uart, UART_IT_TXE); // Enable UART transmission interrupt
-	}
-}
-
 /* checks if the new data is available in the incoming buffer
  */
 int IsDataAvailable(void)
 {
   return (uint16_t)(UART_BUFFER_SIZE + _rx_buffer->head - _rx_buffer->tail) % UART_BUFFER_SIZE;
-}
-
-/* sends the string to the uart
- */
-void Uart_sendstring (const char *s)
-{
-	while(*s) Uart_write(*s++);
-}
-
-void GetDataFromBuffer (char *startString, char *endString, char *buffertocopyfrom, char *buffertocopyinto)
-{
-	int startStringLength = strlen (startString);
-	int endStringLength   = strlen (endString);
-	int so_far = 0;
-	int indx = 0;
-	int startposition = 0;
-	int endposition = 0;
-
-repeat1:
-	while (startString[so_far] != buffertocopyfrom[indx]) indx++;
-	if (startString[so_far] == buffertocopyfrom[indx])
-	{
-		while (startString[so_far] == buffertocopyfrom[indx])
-		{
-			so_far++;
-			indx++;
-		}
-	}
-
-	if (so_far == startStringLength) startposition = indx;
-	else
-	{
-		so_far =0;
-		goto repeat1;
-	}
-
-	so_far = 0;
-
-repeat2:
-	while (endString[so_far] != buffertocopyfrom[indx]) indx++;
-	if (endString[so_far] == buffertocopyfrom[indx])
-	{
-		while (endString[so_far] == buffertocopyfrom[indx])
-		{
-			so_far++;
-			indx++;
-		}
-	}
-
-	if (so_far == endStringLength) endposition = indx-endStringLength;
-	else
-	{
-		so_far =0;
-		goto repeat2;
-	}
-
-	so_far = 0;
-	indx=0;
-
-	for (int i=startposition; i<endposition; i++)
-	{
-		buffertocopyinto[indx] = buffertocopyfrom[i];
-		indx++;
-	}
-}
-
-void Uart_flush (void)
-{
-	memset(_rx_buffer->buffer,'\0', UART_BUFFER_SIZE);
-	_rx_buffer->head = 0;
-	_rx_buffer->tail = 0;
 }
 
 int Uart_peek()
@@ -259,21 +172,6 @@ again:
 
 	if (so_far == len) return 1;
 	else return 0;
-}
-
-/* must be used after wait_for function
- * get the entered number of characters after the entered string
- */
-int Get_after (char *string, uint8_t numberofchars, char *buffertosave)
-{
-	for (int indx=0; indx<numberofchars; indx++)
-	{
-		timeout = TIMEOUT_DEF;
-		while ((!IsDataAvailable())&&timeout);  // wait until some data is available
-		if (timeout == 0) return 0;  // if data isn't available within time, then return 0
-		buffertosave[indx] = Uart_read();  // save the data into the buffer... increments the tail
-	}
-	return 1;
 }
 
 /* Waits for a particular string to arrive in the incoming buffer... It also increments the tail
@@ -385,67 +283,3 @@ void Uart_isr (UART_HandleTypeDef *huart)
     	return;
     }
 }
-
-
-/*** Deprecated For now. This is not needed, try using other functions to meet the requirement ***/
-/*
-uint16_t Get_position (char *string)
-{
-  static uint8_t so_far;
-  uint16_t counter;
-  int len = strlen (string);
-  if (_rx_buffer->tail>_rx_buffer->head)
-  {
-	  if (Uart_read() == string[so_far])
-	  		{
-	  		  counter=UART_BUFFER_SIZE-1;
-	  		  so_far++;
-	  		}
-	  else so_far=0;
-  }
-  unsigned int start = _rx_buffer->tail;
-  unsigned int end = _rx_buffer->head;
-  for (unsigned int i=start; i<end; i++)
-  {
-	  if (Uart_read() == string[so_far])
-		{
-		  counter=i;
-		  so_far++;
-		}
-	  else so_far =0;
-  }
-
-  if (so_far == len)
-	{
-	  so_far =0;
-	  return counter;
-	}
-  else return -1;
-}
-
-
-void Get_string (char *buffer)
-{
-	int index=0;
-
-	while (_rx_buffer->tail>_rx_buffer->head)
-	{
-		if ((_rx_buffer->buffer[_rx_buffer->head-1] == '\n')||((_rx_buffer->head == 0) && (_rx_buffer->buffer[UART_BUFFER_SIZE-1] == '\n')))
-			{
-				buffer[index] = Uart_read();
-				index++;
-			}
-	}
-	unsigned int start = _rx_buffer->tail;
-	unsigned int end = (_rx_buffer->head);
-	if ((_rx_buffer->buffer[end-1] == '\n'))
-	{
-
-		for (unsigned int i=start; i<end; i++)
-		{
-			buffer[index] = Uart_read();
-			index++;
-		}
-	}
-}
-*/

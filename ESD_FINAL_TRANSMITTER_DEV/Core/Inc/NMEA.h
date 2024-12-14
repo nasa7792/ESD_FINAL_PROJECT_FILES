@@ -1,20 +1,19 @@
-/*
- * NMEA.h
- *
- *  Created on: 26-Feb-2022
- *      Author: arunr
- */
+/* ---------------------------------------------------------------------------------
+ * Abhirath Koushik and Arun R (Controllers Tech)
+ * ECEN 5613 - Fall 2024 - Prof. McClure
+ * University of Colorado Boulder
+ * Revised 12/14/24
+ *  --------------------------------------------------------------------------------
+ * This file contains function declarations related to NMEA formatting required for GPS Functions.
+   ---------------------------------------------------------------------------------*/
 
 #ifndef INC_NMEA_H_
 #define INC_NMEA_H_
 
-
-typedef struct {
-	int hour;
-	int min;
-	int sec;
-}TIME;
-
+/* -------------------------------------------------- */
+//          GLOBALS
+/* -------------------------------------------------- */
+// These structures are defined by Arun R (Controllers Tech)
 typedef struct {
 	float latitude;
 	char NS;
@@ -23,38 +22,26 @@ typedef struct {
 }LOCATION;
 
 typedef struct {
-	float altitude;
-	char unit;
-}ALTITUDE;
-
-typedef struct {
-	int Day;
-	int Mon;
-	int Yr;
-}DATE;
-
-typedef struct {
 	LOCATION lcation;
-	TIME tim;
 	int isfixValid;
-	ALTITUDE alt;
-	int numofsat;
 }GGASTRUCT;
 
 typedef struct {
-	DATE date;
-	float speed;
-	float course;
-	int isValid;
-}RMCSTRUCT;
-
-typedef struct {
 	GGASTRUCT ggastruct;
-	RMCSTRUCT rmcstruct;
 }GPSSTRUCT;
 
+/*
+ * Function to parse the NMEA format to extract Latitude and Longitude information.
+ *
+ * Parameters:
+ * 	GGAbuffer : Input buffer containing the GGA sentence
+ * 	gga       : Pointer to the structure where parsed data is stored.
+ *
+ * Returns:
+ * 	0: Success
+ * 	1: Error in GPS Fix
+ * 	2: Error in Buffer Length for storing the data
+ */
 int decodeGGA (char *GGAbuffer, GGASTRUCT *gga);
-
-int decodeRMC (char *RMCbuffer, RMCSTRUCT *rmc);
 
 #endif /* INC_NMEA_H_ */

@@ -1,4 +1,11 @@
-
+/* ---------------------------------------------------------------------------------
+ * Abhirath Koushik and EmbeTronicX
+ * ECEN 5613 - Fall 2024 - Prof. McClure
+ * University of Colorado Boulder
+ * Revised 10/12/24
+ *  --------------------------------------------------------------------------------
+ * This file contains function declarations related to SD Card Operations through SPI and FAT32 protocol.
+   ---------------------------------------------------------------------------------*/
 
 #define TRUE  1
 #define FALSE 0

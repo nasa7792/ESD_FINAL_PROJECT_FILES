@@ -63,18 +63,9 @@ void process_SD_card(char log_str[])
     //close your file
     f_close(&fil);
     printf("\n\rClosing File!\r\n");
-#if 0
-    //Delete the file.
-    fres = f_unlink(EmbeTronicX.txt);
-    if (fres != FR_OK)
-    {
-      printf("Cannot able to delete the file\n");
-    }
-#endif
   } while( false );
 
   //We're done, so de-mount the drive
   f_mount(NULL, "", 0);
   printf("\n\rSD Card Unmounted Successfully!\r\n");
 }
-

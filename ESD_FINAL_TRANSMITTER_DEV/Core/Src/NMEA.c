@@ -13,13 +13,8 @@
 #include "math.h"
 
 
-int GMT = +530;
-
-
 
 int inx = 0;
-int hr=0,min=0,day=0,mon=0,yr=0;
-int daychange = 0;
 
 /* Decodes the GGA Data
    @GGAbuffer is the buffer which stores the GGA Data
@@ -57,45 +52,6 @@ int decodeGGA (char *GGAbuffer, GGASTRUCT *gga)
 	}
 	while (GGAbuffer[inx] != ',') inx++;  // 1st ','
 
-
-/*********************** Get TIME ***************************/
-//(Update the GMT Offset at the top of this file)
-
-	inx++;   // reach the first number in time
-	memset(buffer, '\0', 12);
-	i=0;
-	while (GGAbuffer[inx] != ',')  // copy upto the we reach the after time ','
-	{
-		buffer[i] = GGAbuffer[inx];
-		i++;
-		inx++;
-	}
-
-	hr = (atoi(buffer)/10000) + GMT/100;   // get the hours from the 6 digit number
-
-	min = ((atoi(buffer)/100)%100) + GMT%100;  // get the minutes from the 6 digit number
-
-	// adjust time.. This part still needs to be tested
-	if (min > 59) 
-	{
-		min = min-60;
-		hr++;
-	}
-	if (hr<0)
-	{
-		hr=24+hr;
-		daychange--;
-	}
-	if (hr>=24)
-	{
-		hr=hr-24;
-		daychange++;
-	}
-
-	// Store the time in the GGA structure
-	gga->tim.hour = hr;
-	gga->tim.min = min;
-	gga->tim.sec = atoi(buffer)%100;
 
 /***************** Get LATITUDE  **********************/
 	inx++;   // Reach the first number in the lattitude
@@ -158,141 +114,10 @@ int decodeGGA (char *GGAbuffer, GGASTRUCT *gga)
 		i++;
 		inx++;
 	}
-	gga->numofsat = atoi(buffer);   // convert the buffer to number and save into the structure
 
 
 	/***************** skip HDOP  *********************/
 	inx++;
 	while (GGAbuffer[inx] != ',') inx++;
-
-
-	/*************** Altitude calculation ********************/
-	inx++;
-	memset(buffer, '\0', 12);
-	i=0;
-	while (GGAbuffer[inx] != ',')
-	{
-		buffer[i] = GGAbuffer[inx];
-		i++;
-		inx++;
-	}
-	num = (atoi(buffer));
-	j = 0;
-	while (buffer[j] != '.') j++;
-	j++;
-	declen = (strlen(buffer))-j;
-	dec = atoi ((char *) buffer+j);
-	lat = (num) + (dec/pow(10, (declen)));
-	gga->alt.altitude = lat;
-
-	inx++;
-	gga->alt.unit = GGAbuffer[inx];
-
-	return 0;
-
-}
-
-
-int decodeRMC (char *RMCbuffer, RMCSTRUCT *rmc)
-{
-	inx = 0;
-	char buffer[12];
-	int i = 0;
-	while (RMCbuffer[inx] != ',') inx++;  // 1st ,
-	inx++;
-	while (RMCbuffer[inx] != ',') inx++;  // After time ,
-	inx++;
-	if (RMCbuffer[inx] == 'A')  // Here 'A' Indicates the data is valid, and 'V' indicates invalid data
-	{
-		rmc->isValid = 1;
-	}
-	else
-	{
-		rmc->isValid =0;
-		return 1;
-	}
-	inx++;
-	inx++;
-	while (RMCbuffer[inx] != ',') inx++;  // after latitude,
-	inx++;
-	while (RMCbuffer[inx] != ',') inx++;  // after NS ,
-	inx++;
-	while (RMCbuffer[inx] != ',') inx++;  // after longitude ,
-	inx++;
-	while (RMCbuffer[inx] != ',') inx++;  // after EW ,
-
-	// Get Speed
-	inx++;
-	i=0;
-	memset(buffer, '\0', 12);
-	while (RMCbuffer[inx] != ',')
-	{
-		buffer[i] = RMCbuffer[inx];
-		i++;
-		inx++;
-	}
-
-	if (strlen (buffer) > 0){          // if the speed have some data
-		int16_t num = (atoi(buffer));  // convert the data into the number
-		int j = 0;
-		while (buffer[j] != '.') j++;   // same as above
-		j++;
-		int declen = (strlen(buffer))-j;
-		int dec = atoi ((char *) buffer+j);
-		float lat = num + (dec/pow(10, (declen)));
-		rmc->speed = lat;
-	}
-	else rmc->speed = 0;
-
-	// Get Course
-	inx++;
-	i=0;
-	memset(buffer, '\0', 12);
-	while (RMCbuffer[inx] != ',')
-	{
-		buffer[i] = RMCbuffer[inx];
-		i++;
-		inx++;
-	}
-
-	if (strlen (buffer) > 0){  // if the course have some data
-		int16_t num = (atoi(buffer));   // convert the course data into the number
-		int j = 0;
-		while (buffer[j] != '.') j++;   // same as above
-		j++;
-		int declen = (strlen(buffer))-j;
-		int dec = atoi ((char *) buffer+j);
-		float lat = num + (dec/pow(10, (declen)));
-		rmc->course = lat;
-	}
-	else
-		{
-			rmc->course = 0;
-		}
-
-	// Get Date
-	inx++;
-	i=0;
-	memset(buffer, '\0', 12);
-	while (RMCbuffer[inx] != ',')
-	{
-		buffer[i] = RMCbuffer[inx];
-		i++;
-		inx++;
-	}
-
-	// Date in the format 280222
-	day = atoi(buffer)/10000;  // extract 28
-	mon = (atoi(buffer)/100)%100;  // extract 02
-	yr = atoi(buffer)%100;  // extract 22
-
-	day = day+daychange;   // correction due to GMT shift
-
-	// save the data into the structure
-	rmc->date.Day = day;
-	rmc->date.Mon = mon;
-	rmc->date.Yr = yr;
-
 	return 0;
 }
-

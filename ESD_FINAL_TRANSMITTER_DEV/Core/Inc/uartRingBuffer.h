@@ -1,18 +1,26 @@
-/*
- * UartRingbuffer.h
- *
- *  Created on: 10-Jul-2019
- *      Author: Controllerstech
- */
+/* ---------------------------------------------------------------------------------
+ * Abhirath Koushik and Controllers Tech
+ * ECEN 5613 - Fall 2024 - Prof. McClure
+ * University of Colorado Boulder
+ * Revised 12/14/24
+ *  --------------------------------------------------------------------------------
+ * This file contains function declarations related to Ring Buffer for storing the GPS data.
+   ---------------------------------------------------------------------------------*/
 
 #ifndef UARTRINGBUFFER_H_
 #define UARTRINGBUFFER_H_
 
+/* -------------------------------------------------- */
+//          INCLUDES & DEFINES
+/* -------------------------------------------------- */
 #include "stm32f4xx_hal.h"
-
-/* change the size of the buffer */
 #define UART_BUFFER_SIZE 512
 
+
+/* -------------------------------------------------- */
+//          GLOBALS
+/* -------------------------------------------------- */
+// This structure is defined by Controllers Tech
 typedef struct
 {
   unsigned char buffer[UART_BUFFER_SIZE];
@@ -21,88 +29,89 @@ typedef struct
 } ring_buffer;
 
 
-/* Initialize the ring buffer */
+/* -------------------------------------------------- */
+//          FUNCTION DEFINITIONS
+/* -------------------------------------------------- */
+
+/*
+ * Function to initialize the Ring Buffer.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	None
+ */
 void Ringbuf_init(void);
 
-/* reads the data in the rx_buffer and increment the tail count in rx_buffer */
+/*
+ * Function to read the data in the RX Buffer and increment the Tail count.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	Character read from the RX Buffer
+ */
 int Uart_read(void);
 
-/* writes the data to the tx_buffer and increment the head count in tx_buffer */
-void Uart_write(int c);
-
-/* function to send the string to the uart */
-void Uart_sendstring(const char *s);
-
-/* Print a number with any base
- * base can be 10, 8 etc*/
-void Uart_printbase (long n, uint8_t base);
-
-
-
-/* Checks if the data is available to read in the rx_buffer */
+/*
+ * Function to check if data is available to read from the RX Buffer.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	Number of Unread Bytes that are present in the RX Buffer
+ */
 int IsDataAvailable(void);
 
-
-/* Look for a particular string in the given buffer
- * @return 1, if the string is found and -1 if not found
- * @USAGE:: if (Look_for ("some string", buffer)) do something
+/*
+ * Function to peek for data in the RX Buffer without incrementing the Tail Count.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	Character peeked from the RX Buffer
  */
-int Look_for (char *str, char *buffertolookinto);
-
-/* Copies the required data from a buffer
- * @startString: the string after which the data need to be copied
- * @endString: the string before which the data need to be copied
- * @USAGE:: GetDataFromBuffer ("name=", "&", buffertocopyfrom, buffertocopyinto);
- */
-void GetDataFromBuffer (char *startString, char *endString, char *buffertocopyfrom, char *buffertocopyinto);
-
-
-/* Resets the entire ring buffer, the new data will start from position 0 */
-void Uart_flush (void);
-
-/* Peek for the data in the Rx Bffer without incrementing the tail count
-* Returns the character
-* USAGE: if (Uart_peek () == 'M') do something
-*/
 int Uart_peek();
 
-
-/* Copy the data from the Rx buffer into the bufferr, Upto and including the entered string
-* This copying will take place in the blocking mode, so you won't be able to perform any other operations
-* Returns 1 on success and -1 otherwise
-* USAGE: while (!(Copy_Upto ("some string", buffer)));
-*/
+/*
+ * Function to copy the data from the RX Buffer into another Buffer for parsing the data.
+ * Data, including the entered string is copied through this function.
+ *
+ * Parameters:
+ * 	string            : Target string to match in the RX Buffer
+ * 	buffertocopyinto  : Buffer to copy the data from the RX Buffer until the match is found
+ *
+ * Returns:
+ * 	1 : Success
+ * 	-1: Failure
+ */
 int Copy_upto (char *string, char *buffertocopyinto);
 
-
-/* Copies the entered number of characters (blocking mode) from the Rx buffer into the buffer, after some particular string is detected
-* Returns 1 on success and -1 otherwise
-* USAGE: while (!(Get_after ("some string", 6, buffer)));
-*/
-int Get_after (char *string, uint8_t numberofchars, char *buffertosave);
-
-
-/* Wait until a paricular string is detected in the Rx Buffer
-* Return 1 on success and -1 otherwise
-* USAGE: while (!(Wait_for("some string")));
-*/
+/*
+ * Function to wait until a particular string is detected in the RX Buffer.
+ *
+ * Parameters:
+ * 	string : Target string to match in the RX Buffer
+ *
+ * Returns:
+ * 	1 : Success
+ * 	-1: Failure
+ */
 int Wait_for (char *string);
 
-
-/* the ISR for the uart. put it in the IRQ handler */
-void Uart_isr (UART_HandleTypeDef *huart);
-
-
-
-/*** Depreciated For now. This is not needed, try using other functions to meet the requirement ***/
-/* get the position of the given string within the incoming data.
- * It returns the position, where the string ends
+/*
+ * Function representing the UART Interrupt (ISR) Handler.
+ *
+ * Parameters:
+ * 	huart   : USART HAL Declaration
+ *
+ * Returns:
+ *  None
  */
-//uint16_t Get_position (char *string);
-
-/* once you hit 'enter' (\r\n), it copies the entire string to the buffer*/
-//void Get_string (char *buffer);
-
-
+void Uart_isr (UART_HandleTypeDef *huart);
 
 #endif /* UARTRINGBUFFER_H_ */
