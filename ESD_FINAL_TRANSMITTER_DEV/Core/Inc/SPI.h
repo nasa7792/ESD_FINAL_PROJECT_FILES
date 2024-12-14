@@ -3,6 +3,7 @@
  * ECEN 5613 - Fall 2024 - Prof. McClure
  * University of Colorado Boulder
  * Revised 10/12/24
+ * File name : SPI.h
  *  --------------------------------------------------------------------------------
  * This file contains function declarations related to basic SPI communication
    ---------------------------------------------------------------------------------*/

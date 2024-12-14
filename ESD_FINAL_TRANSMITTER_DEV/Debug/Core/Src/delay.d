@@ -1,4 +1,4 @@
-Core/Inc/delay.o: ../Core/Inc/delay.c ../Core/Inc/delay.h \
+Core/Src/delay.o: ../Core/Src/delay.c ../Core/Inc/delay.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h \
  ../Drivers/CMSIS/Include/core_cm4.h \
