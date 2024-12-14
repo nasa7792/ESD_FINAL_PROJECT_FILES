@@ -22,17 +22,6 @@ void process_SD_card(char log_str[])
     }
     print_success("SD Card Mounted Successfully!\r\n");
 
-    //Read the SD Card Total size and Free Size
-    FATFS *pfs;
-    DWORD fre_clust;
-    uint32_t totalSpace, freeSpace;
-
-    f_getfree("", &fre_clust, &pfs);
-    totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize * 0.5);
-    freeSpace = (uint32_t)(fre_clust * pfs->csize * 0.5);
-
-    //Open the file
-    //FA_OPEN_APPEND  | FA_WRITE
     fres = f_open(&fil, "logger.txt", FA_OPEN_APPEND| FA_WRITE);
     if(fres != FR_OK)
     {

@@ -64,40 +64,6 @@ void store_char(unsigned char c, ring_buffer *buffer)
   }
 }
 
-/* checks, if the entered string is present in the giver buffer ?
- */
-static int check_for (char *str, char *buffertolookinto)
-{
-	int stringlength = strlen (str);
-	int bufferlength = strlen (buffertolookinto);
-	int so_far = 0;
-	int indx = 0;
-repeat:
-	while (str[so_far] != buffertolookinto[indx])
-		{
-			indx++;
-			if (indx>stringlength) return 0;
-		}
-	if (str[so_far] == buffertolookinto[indx])
-	{
-		while (str[so_far] == buffertolookinto[indx])
-		{
-			so_far++;
-			indx++;
-		}
-	}
-
-	if (so_far == stringlength);
-	else
-	{
-		so_far =0;
-		if (indx >= bufferlength) return -1;
-		goto repeat;
-	}
-
-	if (so_far == stringlength) return 1;
-	else return -1;
-}
 
 int Uart_read(void)
 {
