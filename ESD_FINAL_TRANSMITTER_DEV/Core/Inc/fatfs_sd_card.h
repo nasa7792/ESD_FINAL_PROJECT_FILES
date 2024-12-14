@@ -51,7 +51,7 @@
 extern SPI_HandleTypeDef  hspi2;
 
 /* -------------------------------------------------- */
-//          FUNCTION DEFINITIONS
+//          FUNCTION DECLARATIONS
 /* -------------------------------------------------- */
 
 /*
