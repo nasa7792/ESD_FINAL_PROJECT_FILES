@@ -1,15 +1,29 @@
-/*
- * NRF_DRIVER.c
- *
- *  Created on: Nov 10, 2024
- *      Author: Nalin Saxena
- */
+/* ---------------------------------------------------------------------------------
+ * Nalin Saxena
+ * ECEN 5613 - Fall 2024 - Prof. McClure
+ * University of Colorado Boulder
+ * Revised 10/12/24
+ *  --------------------------------------------------------------------------------
+ * This file is the nrf driver implementation. It has key functions to configure an nrf node
+ * as PTX or a PRX and also the data transmission with ack.
+   ---------------------------------------------------------------------------------*/
 
+/* -------------------------------------------------- */
+//          INCLUDES & DEFINES
+/* -------------------------------------------------- */
 #include "NRF_DRIVER.h"
 #include "delay.h"
 #include "SPI.h"
 #include "utilities.h"
+/* -------------------------------------------------- */
+//          GLOBALS
+/* -------------------------------------------------- */
 volatile char command_ack[32];
+
+
+/* -------------------------------------------------- */
+//          FUNCTION DEFINITIONS
+/* -------------------------------------------------- */
 
 void print(uint8_t data[], uint32_t len)
 {
@@ -50,66 +64,66 @@ void CSN_UNSELECT_NRF()
 
 void NRF_ENABLE()
 {
-	GPIOA->BSRR |= GPIO_BSRR_BS_0;
+	GPIOA->BSRR |= GPIO_BSRR_BS_0; // enable nrf
 }
 
 void NRF_DISABLE()
 {
-	GPIOA->BSRR |= GPIO_BSRR_BR_0;
+	GPIOA->BSRR |= GPIO_BSRR_BR_0; // disable nrf
 }
 
 void NRF_WRITE_REGISTER(uint8_t REG_ADDRESS, uint8_t data)
 {
-	uint8_t trans_buff[2];
-	trans_buff[0] = REG_ADDRESS | W_REGISTER;
+	uint8_t trans_buff[2];					  // create a temporary transmit buffer
+	trans_buff[0] = REG_ADDRESS | W_REGISTER; // send register address with Write command to nrf
 	trans_buff[1] = data;
 	CSN_SELECT_NRF();
-	SPI_TX_MULTI(trans_buff, 2);
+	SPI_TX_MULTI(trans_buff, 2); // transmit via spi
 	CSN_UNSELECT_NRF();
 }
 
 void NRF_WRITE_REG_MULTI_BYTES(uint8_t REG_ADDRESS, uint8_t *data_trans, int size_trans)
-{
+{ // this function is mainlu used to write the address of the ptx or prx node
 	uint8_t trans_buff[2];
 	trans_buff[0] = REG_ADDRESS | W_REGISTER;
 	CSN_SELECT_NRF();
-	SPI_TX_MULTI(trans_buff, 1);
-	SPI_TX_MULTI(data_trans, size_trans);
+	SPI_TX_MULTI(trans_buff, 1);		  // send register address with Write command to nrf
+	SPI_TX_MULTI(data_trans, size_trans); // transmit the data_trans buffer in one shot
 	CSN_UNSELECT_NRF();
 }
 
 uint8_t NRF_READ_REGISTER(uint8_t REG_ADDRESS)
 {
-	uint8_t data_returned = 0;
+	uint8_t data_returned = 0; // a variable to store data read from register
 	CSN_SELECT_NRF();
-	SPI_TX_MULTI(&REG_ADDRESS, 1);
+	SPI_TX_MULTI(&REG_ADDRESS, 1); // send register address
 	SPI_READ_MULTI(&data_returned, 1);
 	CSN_UNSELECT_NRF();
-	return data_returned;
+	return data_returned; // return data
 }
 
 void NRF_READ_REGISTER_MULTI(uint8_t REG_ADDRESS, uint8_t *RECV_BUFFER, int RECV_BUFFER_SIZE)
 {
 	CSN_SELECT_NRF();
-	SPI_TX_MULTI(&REG_ADDRESS, 1);
-	SPI_READ_MULTI(RECV_BUFFER, RECV_BUFFER_SIZE);
+	SPI_TX_MULTI(&REG_ADDRESS, 1);				   // send register address
+	SPI_READ_MULTI(RECV_BUFFER, RECV_BUFFER_SIZE); // read RECV_BUFFER_SIZE number of bytes and store in  RECV_BUFFER
 	CSN_UNSELECT_NRF();
 }
 
 void NRF_PTX_CONFIG(uint8_t *Address, uint8_t channel)
 {
-	NRF_DISABLE();
+	NRF_DISABLE();									// first disable nrf
 	NRF_WRITE_REGISTER(RF_CH, channel);				// select channel
 	NRF_WRITE_REG_MULTI_BYTES(TX_ADDR, Address, 5); // set address
 
 	uint8_t current_pipe_status = NRF_READ_REGISTER(EN_RXADDR);
-	current_pipe_status = current_pipe_status | (1 << 0); // enable pipe 1
-	NRF_WRITE_REGISTER(EN_RXADDR, current_pipe_status);
-	NRF_WRITE_REG_MULTI_BYTES(RX_ADDR_P0, Address, 5); // pipe address
+	current_pipe_status = current_pipe_status | (1 << 0); // enable pipe 0
+	NRF_WRITE_REGISTER(EN_RXADDR, current_pipe_status);	  // enable pipe 0 as receiving pipe as well
+	NRF_WRITE_REG_MULTI_BYTES(RX_ADDR_P0, Address, 5);	  // pipe address
 
-	NRF_WRITE_REGISTER(CONFIG, 0x0a); // powwr on device and keep in tx mode
+	NRF_WRITE_REGISTER(CONFIG, 0x0a); // power on device and keep in tx mode
 	delay(5);
-	// NRF_ENABLE();
+	// NRF_ENABLE(); //nrf should be kept disabled
 }
 
 void nrf24_reset(uint8_t REG)
@@ -189,43 +203,56 @@ void NRD_SEND_CMD(uint8_t cmd)
 uint8_t NRF_TX_DATA(uint8_t *data_ptr, uint8_t sizeofdata)
 {
 	uint8_t tx_fifo_stat;
-	uint8_t status_reg;
+	uint8_t status_reg; // a variable to store  status_reg info
+	/*
+	the data sheet specifies that first data has to be written with TX command and then
+	a pulse on the CE pin for atleast 10uS actually transmits the data
+	*/
 	CSN_SELECT_NRF();
-	uint8_t cmd = W_TX_PAYLOAD;
+	uint8_t cmd = W_TX_PAYLOAD; // send write payload command
 	SPI_TX_MULTI(&cmd, 1);
 	SPI_TX_MULTI(data_ptr, sizeofdata); // send payload
 	CSN_UNSELECT_NRF();
+	// pulse ce
 	NRF_ENABLE();
 	delay(10);
 	NRF_DISABLE();
 	tx_fifo_stat = NRF_READ_REGISTER(FIFO_STATUS);
+	// read status register
 	status_reg = NRF_READ_REGISTER(STATUS);
-
-	NRF_ENABLE();
+	/*post transmission the ptx is converted to receiver and checks for an ack message*/
+	NRF_ENABLE(); // enable nrf to conver it into receiver mode
 	delay(10);
+	// chceck for data on pipe 0
 	if (is_data_on_pipe(0) == 1)
 	{
+		// if data is received on pipe 0 means an ack message is recieved
+		// we blink ack (green) led
 		GPIOB->BSRR |= GPIO_BSRR_BS_7;
 		delay(300);
 		GPIOB->BSRR |= GPIO_BSRR_BR_7;
 		delay(300);
 		print_success("ACK RECIEVED FROM PRX NODE ! \n \r");
-		NRF_RECV_DATA(command_ack);
-		print(command_ack, 32);
+		NRF_RECV_DATA(command_ack); // call receive function to read payload
+		print(command_ack, 32);		// print the payload
 	}
-
-	if (status_reg & (1 << 4))
+	/*error handling*/
+	if (status_reg & (MAX_NUMBER_OF_RETRANSMISSION_MASK))
 	{
+		// if max number of retranmission is rached and no ack is received the bit has to be cleared to enable
+		// further communication
 		print_error("\n\rMax number of retransmission Reached !\n \r");
+		// blink no-ack (red led)
 		GPIOB->BSRR |= GPIO_BSRR_BS_6;
 		delay(300);
 		GPIOB->BSRR |= GPIO_BSRR_BR_6;
 		delay(300);
+		// clear MAX_NUMBER_OF_RETRANSMISSION_MASK bit by writing a one
 		status_reg = status_reg | (1 << 4) | (1 << 5);
 		NRF_WRITE_REGISTER(STATUS, status_reg);
 		status_reg = NRF_READ_REGISTER(STATUS);
 		print_info("Clearing MAX retransmission flag ! \n \r");
-		cmd = FLUSH_TX;
+		cmd = FLUSH_TX; // flush transmit buffer
 		NRD_SEND_CMD(cmd);
 		NRF_WRITE_REGISTER(FIFO_STATUS, 0x11); // reset fifo
 	}
@@ -237,39 +264,23 @@ uint8_t is_data_on_pipe(uint8_t pipenum)
 {
 	uint8_t status_reg = NRF_READ_REGISTER(STATUS);
 	// if 6 th bit is set and respective data pipe is set
-	if ((status_reg & (1 << 6)))
+	if (status_reg & (NEW_DATA_ON_RX_FIFO))
 	{
 		// clear rx_dr
-		NRF_WRITE_REGISTER(STATUS, (1 << 6));
-		return 1; // data recieved
+		NRF_WRITE_REGISTER(STATUS, (NEW_DATA_ON_RX_FIFO));
+		return 1; // data received
 	}
 	return 0;
 }
 
-uint8_t NRF_SEND_PAYLOAD_WIDTH_READ(uint8_t cmd)
-{
-	uint8_t temp;
-	while (!(SPI1->SR & (SPI_SR_TXE)))
-	{
-	}
-	SPI1->DR = cmd;
-	temp = SPI1->DR;
-	temp = SPI1->SR;
-	while (!(SPI1->SR & SPI_SR_RXNE))
-	{
-	}
-	return (uint8_t)(SPI1->DR);
-}
-
 void NRF_RECV_DATA(uint8_t *data_ptr_RECV)
 {
-
 	uint8_t cmd = R_RX_PL_WID;
 	uint8_t payLoad_width = 0;
 	CSN_SELECT_NRF();
-	cmd = R_RX_PAYLOAD;
+	cmd = R_RX_PAYLOAD; // send command to read the payload data
 	SPI_TX_MULTI(&cmd, 1);
-	SPI_READ_MULTI(data_ptr_RECV, 10); // recieve data
+	SPI_READ_MULTI(data_ptr_RECV, 10); // fetch payload
 	CSN_UNSELECT_NRF();
 	delay(10);
 	cmd = FLUSH_RX;
