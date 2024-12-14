@@ -48,6 +48,9 @@
 #define FLUSH_TX 0xE1
 #define FLUSH_RX 0xE2
 
+#define MAX_NUMBER_OF_RETRANSMISSION_MASK 1<<4
+#define NEW_DATA_ON_RX_FIFO               1<<6
+
 /* -------------------------------------------------- */
 //          FUNCTION DECLARATIONS
 /* -------------------------------------------------- */

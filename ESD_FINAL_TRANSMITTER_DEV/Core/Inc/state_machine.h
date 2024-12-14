@@ -20,6 +20,10 @@
 #include "max_heart_sensor_driver.h"
 #include "gps.h"
 #include "sd_card.h"
+#define DEFAULT_ACK "default_payload"
+#define DISABLE_MAX30102 "DIS_MAX"
+#define DISABLE_GPS "DIS_GPS"
+#define INVALID_SPO2 -999
 
 // an enum to define various state transitions
 typedef enum

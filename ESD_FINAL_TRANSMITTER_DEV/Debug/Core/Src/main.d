@@ -31,7 +31,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h \
  ../Middlewares/Third_Party/FatFs/src/diskio.h \
  ../Middlewares/Third_Party/FatFs/src/ff.h ../FATFS/Target/user_diskio.h \
- ../Core/Src/usart.h \
+ ../Core/Inc/usart.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h \
  ../Core/Inc/utilities.h ../Core/Inc/delay.h ../Core/Inc/SPI.h \
  ../Core/Inc/utilities.h ../Core/Inc/NRF_DRIVER.h ../Core/Inc/SPI.h \
@@ -77,7 +77,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Middlewares/Third_Party/FatFs/src/diskio.h:
 ../Middlewares/Third_Party/FatFs/src/ff.h:
 ../FATFS/Target/user_diskio.h:
-../Core/Src/usart.h:
+../Core/Inc/usart.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h:
 ../Core/Inc/utilities.h:
 ../Core/Inc/delay.h:
