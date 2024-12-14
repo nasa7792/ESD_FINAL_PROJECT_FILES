@@ -1,100 +1,157 @@
 /* ---------------------------------------------------------------------------------
- * Abhirath Koushik and EmbeTronicX
+ * Abhirath Koushik and EmbeTronicX (https://embetronicx.com/tutorials/microcontrollers/stm32/stm32-sd-card-interfacing-with-example)
  * ECEN 5613 - Fall 2024 - Prof. McClure
  * University of Colorado Boulder
- * Revised 10/12/24
+ * Revised 12/14/2024
  *  --------------------------------------------------------------------------------
- * This file contains function declarations related to SD Card Operations through SPI and FAT32 protocol.
+ * This file contains the functions related to SD Card Operations through SPI and FAT32 protocol.
    ---------------------------------------------------------------------------------*/
+
+#include "stm32f4xx_hal.h"
+#include "diskio.h"
+#include "fatfs_sd_card.h"
+#include "delay.h"
 
 #define TRUE  1
 #define FALSE 0
 #define bool BYTE
-#include"delay.h"
 
-#include "stm32f4xx_hal.h"
-
-
-#include "diskio.h"
-#include <fatfs_sd_card.h>
-
-uint16_t Timer1, Timer2;          /* 1ms Timer Counter */
+uint16_t Timer1, Timer2;                    /* 1ms Timer Counter */
 
 static volatile DSTATUS Stat = STA_NOINIT;  /* Disk Status */
 static uint8_t CardType;                    /* Type 0:MMC, 1:SDC, 2:Block addressing */
-static uint8_t PowerFlag = 0;       /* Power flag */
+static uint8_t PowerFlag = 0;               /* Power flag */
 
-/***************************************
- * SPI functions
- **************************************/
-
-/* slave select */
+/*
+ * Function to perform SPI Slave Selection.
+ * This code was originally written by EmbeTronicX, with minor modifications by Abhirath Koushik.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	None
+ */
 static void SELECT(void)
 {
   HAL_GPIO_WritePin(SD_CS_PORT, SD_CS_PIN, GPIO_PIN_RESET);
- delay(10);
+  delay(10);
 }
 
-/* slave deselect */
+/*
+ * Function to perform SPI Slave De-selection.
+ * This code was originally written by EmbeTronicX, with minor modifications by Abhirath Koushik.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	None
+ */
 static void DESELECT(void)
 {
   HAL_GPIO_WritePin(SD_CS_PORT, SD_CS_PIN, GPIO_PIN_SET);
   delay(10);
 }
 
-/* SPI transmit a byte */
+/*
+ * Function for SPI Transmission using SPI2 through HAL.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	data: Data to be transmitted
+ *
+ * Returns:
+ * 	None
+ */
 static void SPI_TxByte(uint8_t data)
 {
   while(!__HAL_SPI_GET_FLAG(HSPI_SDCARD, SPI_FLAG_TXE));
   HAL_SPI_Transmit(HSPI_SDCARD, &data, 1, SPI_TIMEOUT);
 }
 
-/* SPI transmit buffer */
+/*
+ * Function for SPI Buffer Transmission using SPI2 through HAL.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	buffer: Pointer to the buffer to be transferred
+ *
+ * Returns:
+ * 	None
+ */
 static void SPI_TxBuffer(uint8_t *buffer, uint16_t len)
 {
   while(!__HAL_SPI_GET_FLAG(HSPI_SDCARD, SPI_FLAG_TXE));
   HAL_SPI_Transmit(HSPI_SDCARD, buffer, len, SPI_TIMEOUT);
 }
 
-/* SPI receive a byte */
+/*
+ * Function to receive a single byte of data from SPI slave device using SPI2 through HAL.
+ * This code was originally written by EmbeTronicX, with formatting changes by Abhirath Koushik.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	data: Returns the byte received
+ */
 static uint8_t SPI_RxByte(void)
 {
-  uint8_t dummy, data;
-  dummy = 0xFF;
-
+  uint8_t temp_data, data;
+  temp_data = 0xFF;
   while(!__HAL_SPI_GET_FLAG(HSPI_SDCARD, SPI_FLAG_TXE));
-  HAL_SPI_TransmitReceive(HSPI_SDCARD, &dummy, &data, 1, SPI_TIMEOUT);
-
+  HAL_SPI_TransmitReceive(HSPI_SDCARD, &temp_data, &data, 1, SPI_TIMEOUT);
   return data;
 }
 
-/* SPI receive a byte via pointer */
+/*
+ * Function to receive a buffer of data from SPI slave device using SPI2 through HAL.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	buff: Pointer to the buffer with the received data.
+ */
 static void SPI_RxBytePtr(uint8_t *buff)
 {
   *buff = SPI_RxByte();
 }
 
-/***************************************
- * SD functions
- **************************************/
 
-/* wait SD ready */
+/*
+ * Function to wait for SD Card Drive Ready State.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	res: Receives 0xff when SD card is ready
+ */
 static uint8_t SD_ReadyWait(void)
 {
   uint8_t res;
-
-  /* timeout 500ms */
-  Timer2 = 500;
-
+  Timer2 = 500; /* timeout 500ms */
   /* if SD goes ready, receives 0xFF */
   do {
     res = SPI_RxByte();
   } while ((res != 0xFF) && Timer2);
-
   return res;
 }
 
-/* power on */
+/*
+ * Function for SD Card Power On through SPI HAL Interface.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	None
+ */
 static void SD_PowerOn(void)
 {
   uint8_t args[6];
@@ -111,12 +168,12 @@ static void SD_PowerOn(void)
   SELECT();
 
   /* make idle state */
-  args[0] = CMD0;   /* CMD0:GO_IDLE_STATE */
+  args[0] = CMD0;   /* CMD0: GO_IDLE_STATE */
   args[1] = 0;
   args[2] = 0;
   args[3] = 0;
   args[4] = 0;
-  args[5] = 0x95;   /* CRC */
+  args[5] = 0x95;
 
   SPI_TxBuffer(args, sizeof(args));
 
@@ -132,25 +189,52 @@ static void SD_PowerOn(void)
   PowerFlag = 1;
 }
 
-/* power off */
+/*
+ * Function to Power Off SD Card through SPI HAL Interface.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	None
+ */
 static void SD_PowerOff(void)
 {
   PowerFlag = 0;
 }
 
-/* check power flag */
+/*
+ * Function to Check Power Flag of SD Card.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	None
+ */
 static uint8_t SD_CheckPower(void)
 {
   return PowerFlag;
 }
 
-/* receive data block */
+/*
+ * Function to Receive Block Data from SD Card through SPI HAL Interface.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	buff: Pointer to the buffer that stores the data
+ * 	len: Length of the buffer
+ *
+ * Returns:
+ * 	TRUE(1): On Success
+ * 	FALSE(0): On Failure
+ */
 static bool SD_RxDataBlock(BYTE *buff, UINT len)
 {
   uint8_t token;
-
-  /* timeout 200ms */
-  Timer1 = 200;
+  Timer1 = 200;   /* timeout 200ms */
 
   /* loop until receive a response or timeout */
   do {
@@ -172,7 +256,18 @@ static bool SD_RxDataBlock(BYTE *buff, UINT len)
   return TRUE;
 }
 
-/* transmit data block */
+/*
+ * Function to Transmit Block of Data to SD Card through SPI HAL Interface.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	buff: Pointer to the buffer that stores the data
+ * 	token: Indicates the type of data operation
+ *
+ * Returns:
+ * 	TRUE(1): On Success
+ * 	FALSE(0): On Failure
+ */
 #if _USE_WRITE == 1
 static bool SD_TxDataBlock(const uint8_t *buff, BYTE token)
 {
@@ -215,7 +310,19 @@ static bool SD_TxDataBlock(const uint8_t *buff, BYTE token)
 }
 #endif /* _USE_WRITE */
 
-/* transmit command */
+
+/*
+ * Function to Send a Command to the SD Card through SPI HAL Interface.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	cmd: Command to be sent to the SD Card
+ * 	arg: Arguemnt associated (address or data)
+ *
+ * Returns:
+ * 	Response Byte from the SD Card
+ * 	0xFF: On Failure
+ */
 static BYTE SD_SendCmd(BYTE cmd, uint32_t arg)
 {
   uint8_t crc, res;
@@ -225,10 +332,10 @@ static BYTE SD_SendCmd(BYTE cmd, uint32_t arg)
 
   /* transmit command */
   SPI_TxByte(cmd);          /* Command */
-  SPI_TxByte((uint8_t)(arg >> 24));   /* Argument[31..24] */
-  SPI_TxByte((uint8_t)(arg >> 16));   /* Argument[23..16] */
-  SPI_TxByte((uint8_t)(arg >> 8));  /* Argument[15..8] */
-  SPI_TxByte((uint8_t)arg);       /* Argument[7..0] */
+  SPI_TxByte((uint8_t)(arg >> 24));
+  SPI_TxByte((uint8_t)(arg >> 16));
+  SPI_TxByte((uint8_t)(arg >> 8));
+  SPI_TxByte((uint8_t)arg);
 
   /* prepare CRC */
   if(cmd == CMD0) crc = 0x95; /* CRC for CMD0(0) */
@@ -250,11 +357,17 @@ static BYTE SD_SendCmd(BYTE cmd, uint32_t arg)
   return res;
 }
 
-/***************************************
- * user_diskio.c functions
- **************************************/
 
-/* initialize SD */
+/*
+ * Function to initialize SD Card Disk through SPI.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	pdrv : Physical drive number to identify the drive
+ *
+ * Returns:
+ * 	Disk Status (based on Disk Status Bits (DSTATUS) in diskio.h)
+ */
 DSTATUS SD_disk_initialize(BYTE drv)
 {
   uint8_t n, type, ocr[4];
@@ -354,14 +467,35 @@ DSTATUS SD_disk_initialize(BYTE drv)
   return Stat;
 }
 
-/* return disk status */
+/*
+ * Function to return the SD Card Drive Status directly.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	pdrv : Physical drive number to identify the drive
+ *
+ * Returns:
+ * 	Disk Status (based on Disk Status Bits (DSTATUS) in diskio.h)
+ */
 DSTATUS SD_disk_status(BYTE drv)
 {
   if (drv) return STA_NOINIT;
   return Stat;
 }
 
-/* read sector */
+/*
+ * Function to perform a Read operation from the SD Card Drive.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	pdrv : Physical drive number to identify the drive
+ * 	buff : Pointer to buffer where read data is stored
+ * 	sector : Logical sector address to read from
+ *  count  : Number of sectors to read.
+ *
+ * Returns:
+ * 	Disk Operation Flags (based on enumeration DRESULT in diskio.h)
+ */
 DRESULT SD_disk_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count)
 {
   /* pdrv should be 0 */
@@ -402,7 +536,19 @@ DRESULT SD_disk_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count)
   return count ? RES_ERROR : RES_OK;
 }
 
-/* write sector */
+/*
+ * Function to perform a Write operation to the SD Card Drive.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	pdrv : Physical drive number to identify the drive
+ * 	buff : Pointer to buffer where read data is stored
+ * 	sector : Logical sector address to read from
+ *  count  : Number of sectors to read.
+ *
+ * Returns:
+ * 	Disk Operation Flags (based on enumeration DRESULT in diskio.h)
+ */
 #if _USE_WRITE == 1
 DRESULT SD_disk_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count)
 {
@@ -458,7 +604,18 @@ DRESULT SD_disk_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count)
 }
 #endif /* _USE_WRITE */
 
-/* ioctl */
+/*
+ * Function to perform a Write operation to the SD Card Drive.
+ * This code was originally written by EmbeTronicX.
+ *
+ * Parameters:
+ * 	pdrv : Physical drive number to identify the drive
+ * 	cmd : Control command specifying the operation to perform
+ * 	buff : Pointer to a buffer used to send or receive data related to the control operation
+ *
+ * Returns:
+ * 	Disk Operation Flags (based on enumeration DRESULT in diskio.h)
+ */
 DRESULT SD_disk_ioctl(BYTE drv, BYTE ctrl, void *buff)
 {
   DRESULT res;

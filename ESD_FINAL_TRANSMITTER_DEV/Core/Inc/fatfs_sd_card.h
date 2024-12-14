@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------------
- * Abhirath Koushik and EmbeTronicX (https://embetronicx.com/tutorials/microcontrollers/stm32/stm32-sd-card-interfacing-with-example/)
+ * Abhirath Koushik and EmbeTronicX (https://embetronicx.com/tutorials/microcontrollers/stm32/stm32-sd-card-interfacing-with-example)
  * ECEN 5613 - Fall 2024 - Prof. McClure
  * University of Colorado Boulder
  * Revised 12/14/24
@@ -13,11 +13,9 @@
 /* -------------------------------------------------- */
 //          INCLUDES & DEFINES
 /* -------------------------------------------------- */
-
-/* Defining the SPI Handler and SPI Chip Select Pins */
 #define HSPI_SDCARD     &hspi2
 #define SD_CS_PORT      GPIOB
-#define SD_CS_PIN     GPIO_PIN_12
+#define SD_CS_PIN       GPIO_PIN_12
 
 /* Definitions for MMC/SDC command. Defined by EmbeTronicX */
 #define CMD0     (0x40+0)       /* GO_IDLE_STATE */
@@ -47,26 +45,20 @@
 //          GLOBALS
 /* -------------------------------------------------- */
 #define SPI_TIMEOUT 100
-/* SPI HAL Handler */
-extern SPI_HandleTypeDef  hspi2;
+
+/* Defining the SPI Handler and SPI Chip Select Pins */
+extern SPI_HandleTypeDef  hspi2; /* SPI HAL Handler */
+
 
 /* -------------------------------------------------- */
 //          FUNCTION DECLARATIONS
 /* -------------------------------------------------- */
 
-/*
- * Function to initialize SD Card Disk through SPI.
- *
- * Parameters:
- * 	pdrv : Physical drive number to identify the drive
- *
- * Returns:
- * 	Disk Status (based on Disk Status Bits (DSTATUS) in diskio.h)
- */
 DSTATUS SD_disk_initialize (BYTE pdrv);
 
 /*
  * Function to return the SD Card Drive Status directly.
+ * This code was originally written by EmbeTronicX.
  *
  * Parameters:
  * 	pdrv : Physical drive number to identify the drive
@@ -78,6 +70,7 @@ DSTATUS SD_disk_status (BYTE pdrv);
 
 /*
  * Function to perform a Read operation from the SD Card Drive.
+ * This code was originally written by EmbeTronicX.
  *
  * Parameters:
  * 	pdrv : Physical drive number to identify the drive
@@ -92,6 +85,7 @@ DRESULT SD_disk_read (BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
 
 /*
  * Function to perform a Write operation to the SD Card Drive.
+ * This code was originally written by EmbeTronicX.
  *
  * Parameters:
  * 	pdrv : Physical drive number to identify the drive
@@ -106,6 +100,7 @@ DRESULT SD_disk_write (BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
 
 /*
  * Function to perform a Write operation to the SD Card Drive.
+ * This code was originally written by EmbeTronicX.
  *
  * Parameters:
  * 	pdrv : Physical drive number to identify the drive
