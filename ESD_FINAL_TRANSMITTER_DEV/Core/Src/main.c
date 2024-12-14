@@ -30,7 +30,7 @@
 #include <state_machine.h>
 #include "gps.h"
 #include "sd_card.h"
-#include"formated_printf.h"
+#include "formated_printf.h"
 
 SPI_HandleTypeDef hspi2;
 
@@ -58,13 +58,11 @@ int main(void)
   print_info("MAX30102 DETECTED AND INITALIZED!");
   printf("\n \r");
 
-  // nrf init code
-
   uint8_t TxAddress[] = {0xB3, 0xB4, 0xB5, 0xB6, 0x05};
 
   uint8_t channel = 10;
 
-  delay(2000);
+  delay(4000);
   print_info("Calling NRF INIT\n\r");
   NRF_INIT();
 
@@ -75,7 +73,7 @@ int main(void)
   for (int i = 0; i <= 0x1D; i++)
   {
 
-	 printf("\n \r register %x is value %x \n \r", i, NRF_READ_REGISTER(i));
+    printf("\n \r register %x is value %x \n \r", i, NRF_READ_REGISTER(i));
   }
 
   StateMachine SM;

@@ -2,7 +2,7 @@
  * I2C.h
  *
  *  Created on: Nov 28, 2024
- *      Author: Asus
+ *      Author: Nalin Saxena
  */
 
 #ifndef INC_I2C_DRIVER_H_

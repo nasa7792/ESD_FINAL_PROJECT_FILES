@@ -2,7 +2,7 @@
  * formated_printf.h
  *
  *  Created on: Dec 6, 2024
- *      Author: Asus
+ *      Author: Nalin Saxena
  */
 
 #ifndef INC_FORMATED_PRINTF_H_

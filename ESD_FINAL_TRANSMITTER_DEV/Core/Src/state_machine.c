@@ -2,7 +2,7 @@
  * state_machine.c
  *
  *  Created on: Dec 3, 2024
- *      Author: Asus
+ *      Author: Nalin Saxena
  */
 
 
@@ -47,7 +47,7 @@ void execute_sm(StateMachine *sm){
 			}
 			MAX30102_WRITE_REGISTER(MODE_CONFIG_REG, 0x3); // spo2
 			bool valid_data=false;
-			uint32_t timeout_val=1; //try for 10 seconds to get heart rate data
+			uint32_t timeout_val=2; //try for 10 seconds to get heart rate data
 			acquire_max_30102_data(timeout_val,&(sm->valid_heart_rate),&(sm->spo2),&(sm->heart_rate),&(sm->valid_spo2),&valid_data);
 			sm->current_state=STATE_GPS_DATA_ACQUIRE;
 			if(!valid_data){

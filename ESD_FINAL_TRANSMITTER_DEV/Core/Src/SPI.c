@@ -2,40 +2,51 @@
  * SPI.c
  *
  *  Created on: Nov 10, 2024
- *      Author: Asus
+ *      Author: Nalin Saxena
+ * 
+ * This file contains function definitions for spi configuration and spi read and write utilities.
  */
 
 #include"SPI.h"
 #include"stdio.h"
-#define AF05  (0x05)
-
 
 void SPI_INIT(){
-	//enable clock for GPIOA
+//enable clock for gpioA peripheral 
 	RCC->AHB1ENR|=RCC_AHB1ENR_GPIOAEN;
-	//set PA5, PA6 and PA7 to alternate function mode
-	GPIOA->MODER|=GPIO_MODER_MODE5_1|GPIO_MODER_MODE6_1|GPIO_MODER_MODE7_1;
-	//set which type of alternate function is
-	GPIOA->AFR[0]|=(AF05<<20)|(AF05<<24)|(AF05<<28);
-	//enable clock access to SPI1
+
+//declare pa5,pa6,pa7 as alternate functional pins
+	MODIFY_FIELD(GPIOA->MODER,GPIO_MODER_MODER5,ESF_GPIO_MODER_ALT_FUNC); //PA5-> SPI1_SCK
+	MODIFY_FIELD(GPIOA->MODER,GPIO_MODER_MODER6,ESF_GPIO_MODER_ALT_FUNC); //PA6-> SPI1_MISO
+	MODIFY_FIELD(GPIOA->MODER,GPIO_MODER_MODER7,ESF_GPIO_MODER_ALT_FUNC); //PA7-> SPI1_MOSI
+
+	MODIFY_FIELD(GPIOA->AFR[0], GPIO_AFRL_AFSEL5, 5);
+	MODIFY_FIELD(GPIOA->AFR[0], GPIO_AFRL_AFSEL6, 5);
+	MODIFY_FIELD(GPIOA->AFR[0], GPIO_AFRL_AFSEL7, 5);
+
+
+    //enable clock for spi1 peripheral
 	RCC->APB2ENR|=RCC_APB2ENR_SPI1EN;
-	//set software slave managment
+    //enable software slave management
 	SPI1->CR1|=SPI_CR1_SSM|SPI_CR1_SSI;
-	//set SPI in master mode
+
+    //configure spi in master mode
 	MODIFY_FIELD(SPI1->CR1, SPI_CR1_MSTR, 1);
+	//set spi baud rate 
 	MODIFY_FIELD(SPI1->CR1, SPI_CR1_BR,  3);
+	//set cpol and cpha as 0,0 spi mode 0
 	MODIFY_FIELD(SPI1->CR1, SPI_CR1_CPHA, 0);
 	MODIFY_FIELD(SPI1->CR1, SPI_CR1_CPOL, 0);
-	//MODIFY_FIELD(SPI1->CR1, SPI_CR1_LSBFIRST, 1);
+
 	SPI1->CR2 |= 0x4;
-	SPI1->CR1 |= 0x40; // Enabling SPI SPI periph
+	SPI1->CR1 |= 0x40; 
+	// Enabling SPI SPI peripheral
 	MODIFY_FIELD(SPI1->CR1, SPI_CR1_SPE, 1);
 }
 
 //send multiple bytes in case size>1
 void SPI_TX_MULTI(uint8_t *data_ptr,int size){
 int i=0;
-uint8_t temp;
+
 while(i<size){
 	while(!(SPI1->SR & (SPI_SR_TXE))){}
 	SPI1->DR = data_ptr[i];
@@ -47,9 +58,10 @@ while(!(SPI1->SR & (SPI_SR_TXE))){}
 /*Wait for BUSY flag to reset*/
 while((SPI1->SR & (SPI_SR_BSY))){}
 
-/*Clear OVR flag*/
-temp = SPI1->DR;
-temp = SPI1->SR;
+uint8_t software_clear_OVR_FLAG;
+ /*read DR first and then SR to clear OVR flag to avoid interruptions in spi*/
+software_clear_OVR_FLAG = SPI1->DR;
+software_clear_OVR_FLAG = SPI1->SR;
 }
 
 

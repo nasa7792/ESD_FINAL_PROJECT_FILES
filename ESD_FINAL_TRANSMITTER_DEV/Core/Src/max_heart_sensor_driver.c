@@ -2,7 +2,7 @@
  * max_heart_sensor_driver.c
  *
  *  Created on: Nov 28, 2024
- *      Author: Asus
+ *      Author: Nalin Saxena
  */
 
 
@@ -130,8 +130,6 @@ uint8_t available(void)
 
   return (numberOfSamples);
 }
-
-
 
 
 uint16_t check_new_data(){
@@ -296,14 +294,7 @@ void acquire_max_30102_data(uint32_t num_ters,int8_t* heart_rate_status,int32_t*
 	      redBuffer[i] = getRed();
 	      irBuffer[i] = getIR();
 	     nextSample(); //We're finished with this sample so move to next sample
-/*
-	     printf("\n \r HEARATE =%ld",*heart_rate_var);
-	     printf(" is valid HEARATE =%d",*heart_rate_status);
-	 	 printf(" spo2 =%ld",*spo2_var);
-	     printf(" is valid spo2 =%d",*valid_spo2);
-		 printf(" red =%ld",redBuffer[i]);
-		 printf(" IR valid spo2 =%ld",irBuffer[i]);
-*/
+
 		    if(*valid_spo2==1){
 			    	*status=true;
 			    return ;

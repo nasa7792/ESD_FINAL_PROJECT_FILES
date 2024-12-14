@@ -2,7 +2,7 @@
  * I2.c
  *
  *  Created on: Nov 28, 2024
- *      Author: Asus
+ *      Author: Nalin Saxena
  */
 
 #include <I2C_driver.h>
@@ -20,7 +20,7 @@ void I2C_init_config(){
 	MODIFY_FIELD(GPIOB->AFR[1], GPIO_AFRH_AFSEL8, 4);
 	MODIFY_FIELD(GPIOB->AFR[1], GPIO_AFRH_AFSEL9, 4);
 
-	//configure as outout open drain
+	//configure as output open drain
 	MODIFY_FIELD(GPIOB->OTYPER,GPIO_OTYPER_OT8,1);
 	MODIFY_FIELD(GPIOB->OTYPER,GPIO_OTYPER_OT9,1);
 

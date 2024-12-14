@@ -2,7 +2,7 @@
  * max_heart_sensor_driver.h
  *
  *  Created on: Nov 28, 2024
- *      Author: Asus
+ *      Author: Nalin Saxena
  */
 
 #ifndef INC_MAX_HEART_SENSOR_DRIVER_H_

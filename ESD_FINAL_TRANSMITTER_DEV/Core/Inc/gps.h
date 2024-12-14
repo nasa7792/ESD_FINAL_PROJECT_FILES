@@ -2,7 +2,7 @@
  * gps.h
  *
  *  Created on: Dec 4, 2024
- *      Author: Asus
+ *      Author: Nalin Saxena
  */
 
 #ifndef INC_GPS_H_

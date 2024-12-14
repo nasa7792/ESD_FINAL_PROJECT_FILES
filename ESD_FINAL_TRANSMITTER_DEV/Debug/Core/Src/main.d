@@ -35,13 +35,12 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h \
  ../Core/Inc/utilities.h ../Core/Inc/delay.h ../Core/Inc/SPI.h \
  ../Core/Inc/utilities.h ../Core/Inc/NRF_DRIVER.h ../Core/Inc/SPI.h \
- ../Core/Inc/formated_printf.h ../Core/Inc/NRF_DRIVER.h \
- ../Core/Inc/max_heart_sensor_driver.h ../Core/Inc/I2C_driver.h \
- ../Core/Inc/spo2_algorithm.h ../Core/Inc/delay.h \
- ../Core/Inc/state_machine.h ../Core/Inc/max_heart_sensor_driver.h \
- ../Core/Inc/gps.h ../Core/Inc/uartRingBuffer.h ../Core/Inc/NMEA.h \
- ../Core/Inc/sd_card.h ../Core/Inc/gps.h ../Core/Inc/sd_card.h \
- ../Core/Inc/formated_printf.h
+ ../Core/Inc/formated_printf.h ../Core/Inc/max_heart_sensor_driver.h \
+ ../Core/Inc/I2C_driver.h ../Core/Inc/spo2_algorithm.h \
+ ../Core/Inc/delay.h ../Core/Inc/state_machine.h \
+ ../Core/Inc/max_heart_sensor_driver.h ../Core/Inc/gps.h \
+ ../Core/Inc/uartRingBuffer.h ../Core/Inc/NMEA.h ../Core/Inc/sd_card.h \
+ ../Core/Inc/gps.h ../Core/Inc/sd_card.h ../Core/Inc/formated_printf.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -87,7 +86,6 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/NRF_DRIVER.h:
 ../Core/Inc/SPI.h:
 ../Core/Inc/formated_printf.h:
-../Core/Inc/NRF_DRIVER.h:
 ../Core/Inc/max_heart_sensor_driver.h:
 ../Core/Inc/I2C_driver.h:
 ../Core/Inc/spo2_algorithm.h:
