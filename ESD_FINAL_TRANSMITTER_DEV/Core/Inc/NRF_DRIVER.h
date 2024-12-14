@@ -3,6 +3,7 @@
  * ECEN 5613 - Fall 2024 - Prof. McClure
  * University of Colorado Boulder
  * Revised 10/12/24
+ * File name : NRF_DRIVER.h
  *  --------------------------------------------------------------------------------
  * This file contains function declarations related to basic SPI communication
    ---------------------------------------------------------------------------------*/
@@ -46,6 +47,10 @@
 #define W_ACK_PAYLOAD 0xA8
 #define FLUSH_TX 0xE1
 #define FLUSH_RX 0xE2
+
+/* -------------------------------------------------- */
+//          FUNCTION DECLARATIONS
+/* -------------------------------------------------- */
 
 /*
  * Function to initalize NRF initial configruation device is not powered on post this config.

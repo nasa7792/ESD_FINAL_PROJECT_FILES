@@ -67,19 +67,13 @@ void I2C_SEND_ADDRESS(uint8_t address){
 
 	I2C1->DR = address;
 	//delay(4);
-//	printf("\n \r  1 of addr is %d \n \r",I2C1->SR1 & (1<<1));
 	while (!(I2C1->SR1 & (1<<1))); //wait for address bit to be set
 	//This bit is cleared by software reading SR1 register followed reading SR2, or by hardware
-//	printf("\n \r after 2 of addr is %d \n \r",I2C1->SR1 & (1<<1));
-	uint8_t temp_clear=I2C1->SR1 | I2C1->SR2;
-//	printf("\n \r after 3 of addr is %d \n \r",I2C1->SR1 & (1<<1));
-
-
+	uint8_t temp_clear=I2C1->SR1 | I2C1->SR2;;
 }
 
 void I2C_STOP_COMS(){
 	I2C1->CR1|=I2C_CR1_STOP; //stop condition
-   // while (I2C1->CR1 & I2C_CR1_STOP);
 	delay(1);
 }
 
