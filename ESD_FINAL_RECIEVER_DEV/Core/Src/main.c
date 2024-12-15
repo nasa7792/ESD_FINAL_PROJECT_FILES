@@ -84,7 +84,7 @@ int main(void)
 	NRF_INIT();
 	NRF_PRX_CONFIG(RxAddress,channel);
 	command_button_config();
-	print_info("\n\rSetting up as PRX Dynamic Payload Attempt\n\r");
+	print_info("\n\r Setting up as PRX Dynamic Payload\n\r");
 	for(int i=0; i<=0x1D ;i++){
 		printf("\n\rRegister %x is value %x \n\r", i, NRF_READ_REGISTER(i));
 	}
