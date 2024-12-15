@@ -30,6 +30,10 @@ typedef struct {
 	GGASTRUCT ggastruct;
 }GPSSTRUCT;
 
+/* -------------------------------------------------- */
+//          FUNCTION DECLARATIONS
+/* -------------------------------------------------- */
+
 /*
  * Function to parse the NMEA format to extract Latitude and Longitude information.
  *

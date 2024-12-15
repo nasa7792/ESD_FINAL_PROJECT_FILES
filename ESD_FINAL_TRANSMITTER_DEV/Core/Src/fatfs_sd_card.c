@@ -7,6 +7,9 @@
  * This file contains the functions related to SD Card Operations through SPI and FAT32 protocol.
    ---------------------------------------------------------------------------------*/
 
+/* -------------------------------------------------- */
+//          INCLUDES & DEFINES
+/* -------------------------------------------------- */
 #include "stm32f4xx_hal.h"
 #include "diskio.h"
 #include "fatfs_sd_card.h"
@@ -16,11 +19,17 @@
 #define FALSE 0
 #define bool BYTE
 
+/* -------------------------------------------------- */
+//          GLOBALS
+/* -------------------------------------------------- */
 uint16_t Timer1, Timer2;                    /* 1ms Timer Counter */
-
 static volatile DSTATUS Stat = STA_NOINIT;  /* Disk Status */
 static uint8_t CardType;                    /* Type 0:MMC, 1:SDC, 2:Block addressing */
 static uint8_t PowerFlag = 0;               /* Power flag */
+
+/* -------------------------------------------------- */
+//          FUNCTION DEFINITIONS
+/* -------------------------------------------------- */
 
 /*
  * Function to perform SPI Slave Selection.

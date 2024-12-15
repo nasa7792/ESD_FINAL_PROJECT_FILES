@@ -1,70 +1,89 @@
-/*
- * UartRingbuffer.c
- *
- *  Created on: 10-Jul-2019
- *      Author: Controllerstech
- *
- *  Modified on: 11-April-2020
- */
+/* ---------------------------------------------------------------------------------
+ * Abhirath Koushik and Controllers Tech
+ * ECEN 5613 - Fall 2024 - Prof. McClure
+ * University of Colorado Boulder
+ * Revised 12/14/24
+ *  --------------------------------------------------------------------------------
+ * This file contains function declarations related to Ring Buffer for storing the GPS data.
+   ---------------------------------------------------------------------------------*/
 
-#include "UartRingbuffer.h"
+/* -------------------------------------------------- */
+//          INCLUDES & DEFINES
+/* -------------------------------------------------- */
 #include <string.h>
-
-/**** define the UART you are using  ****/
-
-extern UART_HandleTypeDef huart1;
-
-#define uart &huart1
+#include "UartRingbuffer.h"
 
 #define TIMEOUT_DEF 2000  // 500ms timeout for the functions
+#define uart &huart1
+
+/* -------------------------------------------------- */
+//          GLOBALS
+/* -------------------------------------------------- */
+extern UART_HandleTypeDef huart1; // Define the HAL UART Handler
 uint16_t timeout;
 
-/* put the following in the ISR
-
-extern void Uart_isr (UART_HandleTypeDef *huart);
-extern uint16_t timeout;
-
-*/
-
-/****************=======================>>>>>>>>>>> NO CHANGES AFTER THIS =======================>>>>>>>>>>>**********************/
-
-
+// Defining the Rx and Tx buffers
 ring_buffer rx_buffer = { { 0 }, 0, 0};
 ring_buffer tx_buffer = { { 0 }, 0, 0};
-
 ring_buffer *_rx_buffer;
 ring_buffer *_tx_buffer;
 
-void store_char(unsigned char c, ring_buffer *buffer);
+/* -------------------------------------------------- */
+//          FUNCTION DEFINITIONS
+/* -------------------------------------------------- */
 
-
+/*
+ * Function to initialize the Ring Buffer.
+ * This code was originally written by Controllers Tech.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	None
+ */
 void Ringbuf_init(void)
 {
   _rx_buffer = &rx_buffer;
   _tx_buffer = &tx_buffer;
 
-  /* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
+  /* Enable the UART Error Interrupt*/
   __HAL_UART_ENABLE_IT(uart, UART_IT_ERR);
 
   /* Enable the UART Data Register not empty Interrupt */
   __HAL_UART_ENABLE_IT(uart, UART_IT_RXNE);
 }
 
+/*
+ * Function to store characters in the ring buffer.
+ * This code was originally written by Controllers Tech.
+ *
+ * Parameters:
+ * 	c       : Character to be stored
+ * 	buffer  : Pointer to the buffer which stores the characters
+ *
+ * Returns:
+ * 	None
+ */
 void store_char(unsigned char c, ring_buffer *buffer)
 {
   int i = (unsigned int)(buffer->head + 1) % UART_BUFFER_SIZE;
-
-  // if we should be storing the received character into the location
-  // just before the tail (meaning that the head would advance to the
-  // current location of the tail), we're about to overflow the buffer
-  // and so we don't write the character or advance the head.
   if(i != buffer->tail) {
     buffer->buffer[buffer->head] = c;
     buffer->head = i;
   }
 }
 
-
+/*
+ * Function to check if data is available to read from the RX Buffer.
+ * This code was originally written by Controllers Tech.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	Number of Unread Bytes that are present in the RX Buffer
+ */
 int Uart_read(void)
 {
   // if the head isn't ahead of the tail, we don't have any characters
@@ -80,13 +99,31 @@ int Uart_read(void)
   }
 }
 
-/* checks if the new data is available in the incoming buffer
+/*
+ * Function to check if data is available to read from the RX Buffer.
+ * This code was originally written by Controllers Tech.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	Number of Unread Bytes that are present in the RX Buffer
  */
 int IsDataAvailable(void)
 {
   return (uint16_t)(UART_BUFFER_SIZE + _rx_buffer->head - _rx_buffer->tail) % UART_BUFFER_SIZE;
 }
 
+/*
+ * Function to peek for data in the RX Buffer without incrementing the Tail Count.
+ * This code was originally written by Controllers Tech.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	Character peeked from the RX Buffer
+ */
 int Uart_peek()
 {
   if(_rx_buffer->head == _rx_buffer->tail)
@@ -99,11 +136,18 @@ int Uart_peek()
   }
 }
 
-/* copies the data from the incoming buffer into our buffer
- * Must be used if you are sure that the data is being received
- * it will copy irrespective of, if the end string is there or not
- * if the end string gets copied, it returns 1 or else 0
- * Use it either after (IsDataAvailable) or after (Wait_for) functions
+/*
+ * Function to copy the data from the RX Buffer into another Buffer for parsing the data.
+ * Data, including the entered string is copied through this function.
+ * This code was originally written by Controllers Tech.
+ *
+ * Parameters:
+ * 	string            : Target string to match in the RX Buffer
+ * 	buffertocopyinto  : Buffer to copy the data from the RX Buffer until the match is found
+ *
+ * Returns:
+ * 	1 : Success
+ * 	-1: Failure
  */
 int Copy_upto (char *string, char *buffertocopyinto)
 {
@@ -140,10 +184,17 @@ again:
 	else return 0;
 }
 
-/* Waits for a particular string to arrive in the incoming buffer... It also increments the tail
- * returns 1, if the string is detected
+/*
+ * Function to wait until a particular string is detected in the RX Buffer.
+ * This code was originally written by Controllers Tech.
+ *
+ * Parameters:
+ * 	string : Target string to match in the RX Buffer
+ *
+ * Returns:
+ * 	1 : Success
+ * 	-1: Failure
  */
-// added timeout feature so the function won't block the processing of the other functions
 int Wait_for (char *string)
 {
 	int so_far =0;
@@ -186,9 +237,16 @@ again:
 	else return 0;
 }
 
-
-
-
+/*
+ * Function representing the UART Interrupt (ISR) Handler.
+ * This code was originally written by Controllers Tech.
+ *
+ * Parameters:
+ * 	huart   : USART HAL Declaration
+ *
+ * Returns:
+ *  None
+ */
 void Uart_isr (UART_HandleTypeDef *huart)
 {
 	  uint32_t isrflags   = READ_REG(huart->Instance->SR);
@@ -197,17 +255,6 @@ void Uart_isr (UART_HandleTypeDef *huart)
     /* if DR is not empty and the Rx Int is enabled */
     if (((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
     {
-    	 /******************
-    	    	      *  @note   PE (Parity error), FE (Framing error), NE (Noise error), ORE (Overrun
-    	    	      *          error) and IDLE (Idle line detected) flags are cleared by software
-    	    	      *          sequence: a read operation to USART_SR register followed by a read
-    	    	      *          operation to USART_DR register.
-    	    	      * @note   RXNE flag can be also cleared by a read to the USART_DR register.
-    	    	      * @note   TC flag can be also cleared by software sequence: a read operation to
-    	    	      *          USART_SR register followed by a write operation to USART_DR register.
-    	    	      * @note   TXE flag is cleared only by a write to the USART_DR register.
-
-    	 *********************/
 		huart->Instance->SR;                       /* Read status register */
         unsigned char c = huart->Instance->DR;     /* Read data register */
         store_char (c, _rx_buffer);  // store data in buffer
@@ -223,28 +270,13 @@ void Uart_isr (UART_HandleTypeDef *huart)
     	      __HAL_UART_DISABLE_IT(huart, UART_IT_TXE);
 
     	    }
-
     	 else
     	    {
     	      // There is more data in the output buffer. Send the next byte
     	      unsigned char c = tx_buffer.buffer[tx_buffer.tail];
     	      tx_buffer.tail = (tx_buffer.tail + 1) % UART_BUFFER_SIZE;
-
-    	      /******************
-    	      *  @note   PE (Parity error), FE (Framing error), NE (Noise error), ORE (Overrun
-    	      *          error) and IDLE (Idle line detected) flags are cleared by software
-    	      *          sequence: a read operation to USART_SR register followed by a read
-    	      *          operation to USART_DR register.
-    	      * @note   RXNE flag can be also cleared by a read to the USART_DR register.
-    	      * @note   TC flag can be also cleared by software sequence: a read operation to
-    	      *          USART_SR register followed by a write operation to USART_DR register.
-    	      * @note   TXE flag is cleared only by a write to the USART_DR register.
-
-    	      *********************/
-
     	      huart->Instance->SR;
     	      huart->Instance->DR = c;
-
     	    }
     	return;
     }

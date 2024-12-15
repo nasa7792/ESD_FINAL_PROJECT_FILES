@@ -1,28 +1,43 @@
-/*
- * NMEA.c
- *
- *  Created on: 25-Feb-2022
- *      Author: controllerstech.com
- */
+/* ---------------------------------------------------------------------------------
+ * Abhirath Koushik and Arun R (Controllers Tech)
+ * ECEN 5613 - Fall 2024 - Prof. McClure
+ * University of Colorado Boulder
+ * Revised 12/14/24
+ *  --------------------------------------------------------------------------------
+ * This file contains the functions related to NMEA formatting required for GPS Functions.
+   ---------------------------------------------------------------------------------*/
 
-
+/* -------------------------------------------------- */
+//          INCLUDES & DEFINES
+/* -------------------------------------------------- */
 #include "NMEA.h"
 #include "stdint.h"
 #include "stdlib.h"
 #include "string.h"
 #include "math.h"
 
-
-
+/* -------------------------------------------------- */
+//          INCLUDES & DEFINES
+/* -------------------------------------------------- */
 int inx = 0;
 
-/* Decodes the GGA Data
-   @GGAbuffer is the buffer which stores the GGA Data
-   @GGASTRUCT is the pointer to the GGA Structure (in the GPS Structure)
-   @Returns 0 on success
-   @ returns 1, 2 depending on where the return statement is excuted, check function for more details
-*/
+/* -------------------------------------------------- */
+//          FUNCTION DEFINITIONS
+/* -------------------------------------------------- */
 
+/*
+ * Function to parse the NMEA format to extract Latitude and Longitude information.
+ * This code was originally written by Arun R of Controllers Tech, with modifications by Abhirath Koushik.
+ *
+ * Parameters:
+ * 	GGAbuffer : Input buffer containing the GGA sentence
+ * 	gga       : Pointer to the structure where parsed data is stored.
+ *
+ * Returns:
+ * 	0: Success
+ * 	1: Error in GPS Fix
+ * 	2: Error in Buffer Length for storing the data
+ */
 int decodeGGA (char *GGAbuffer, GGASTRUCT *gga)
 {
 	inx = 0;
@@ -39,11 +54,11 @@ int decodeGGA (char *GGAbuffer, GGASTRUCT *gga)
 	while (GGAbuffer[inx] != ',') inx++;  // after longitude ','
 	inx++;
 	while (GGAbuffer[inx] != ',') inx++;  // after EW ','
-	inx++;  // reached the character to identify the fix
+	inx++;  // reached the character to identify the GPS Position Fix
 	if ((GGAbuffer[inx] == '1') || (GGAbuffer[inx] == '2') || (GGAbuffer[inx] == '6'))   // 0 indicates no fix yet
 	{
 		gga->isfixValid = 1;   // fix available
-		inx = 0;   // reset the index. We will start from the inx=0 and extract information now
+		inx = 0;   // reset the index and extract information now
 	}
 	else
 	{
@@ -52,72 +67,50 @@ int decodeGGA (char *GGAbuffer, GGASTRUCT *gga)
 	}
 	while (GGAbuffer[inx] != ',') inx++;  // 1st ','
 
-
-/***************** Get LATITUDE  **********************/
-	inx++;   // Reach the first number in the lattitude
+	// Get Latitude Information
+	inx++;   // Reach the first number in the latitude
 	memset(buffer, '\0', 12);
 	i=0;
-	while (GGAbuffer[inx] != ',')   // copy upto the we reach the after lattitude ','
+	while (GGAbuffer[inx] != ',')
 	{
 		buffer[i] = GGAbuffer[inx];
 		i++;
 		inx++;
 	}
 	if (strlen(buffer) < 6) return 2;  // If the buffer length is not appropriate, return error
-	int16_t num = (atoi(buffer));   // change the buffer to the number. It will only convert upto decimal
+	int16_t num = (atoi(buffer));
 	int j = 0;
-	while (buffer[j] != '.') j++;   // Figure out how many digits before the decimal
+	while (buffer[j] != '.') j++;
 	j++;
 	int declen = (strlen(buffer))-j;  // calculate the number of digit after decimal
-	int dec = atoi ((char *) buffer+j);  // conver the decimal part a a separate number
-	float lat = (num/100.0) + (dec/pow(10, (declen+2)));  // 1234.56789 = 12.3456789
-	gga->lcation.latitude = lat;  // save the lattitude data into the strucure
+	int dec = atoi ((char *) buffer+j);
+	float lat = (num/100.0) + (dec/pow(10, (declen+2)));
+	gga->lcation.latitude = lat;  // save the latitude data into the structure
 	inx++;  
 	gga->lcation.NS = GGAbuffer[inx];  // save the N/S into the structure
 
 
-/***********************  GET LONGITUDE **********************/
+	// Get Longitude Information
 	inx++;  // ',' after NS character
 	inx++;  // Reach the first number in the longitude
 	memset(buffer, '\0', 12);
 	i=0;
-	while (GGAbuffer[inx] != ',')  // copy upto the we reach the after longitude ','
+	while (GGAbuffer[inx] != ',')
 	{
 		buffer[i] = GGAbuffer[inx];
 		i++;
 		inx++;
 	}
-	num = (atoi(buffer));  // change the buffer to the number. It will only convert upto decimal
+	num = (atoi(buffer));
 	j = 0;
-	while (buffer[j] != '.') j++;  // Figure out how many digits before the decimal
+	while (buffer[j] != '.') j++;
 	j++;
 	declen = (strlen(buffer))-j;  // calculate the number of digit after decimal
-	dec = atoi ((char *) buffer+j);  // conver the decimal part a a separate number
-	lat = (num/100.0) + (dec/pow(10, (declen+2)));  // 1234.56789 = 12.3456789
-	gga->lcation.longitude = lat;  // save the longitude data into the strucure
+	dec = atoi ((char *) buffer+j);
+	lat = (num/100.0) + (dec/pow(10, (declen+2)));
+	gga->lcation.longitude = lat;  // save the longitude data into the structure
 	inx++;
 	gga->lcation.EW = GGAbuffer[inx];  // save the E/W into the structure
 
-/**************************************************/
-	// skip positition fix
-	inx++;   // ',' after E/W
-	inx++;   // position fix
-	inx++;   // ',' after position fix;
-
-	// number of sattelites
-	inx++;  // Reach the first number in the satellites
-	memset(buffer, '\0', 12);
-	i=0;
-	while (GGAbuffer[inx] != ',')  // copy upto the ',' after number of satellites
-	{
-		buffer[i] = GGAbuffer[inx];
-		i++;
-		inx++;
-	}
-
-
-	/***************** skip HDOP  *********************/
-	inx++;
-	while (GGAbuffer[inx] != ',') inx++;
 	return 0;
 }
