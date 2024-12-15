@@ -1,19 +1,40 @@
+/* ---------------------------------------------------------------------------------
+ * Nalin Saxena and Abhirath Koushik
+ * ECEN 5613 - Fall 2024 - Prof. McClure
+ * University of Colorado Boulder
+ * Revised 12/15/2024
+ *  --------------------------------------------------------------------------------
+ * This is the main file initiating the receiver unit code executions.
+   ---------------------------------------------------------------------------------*/
 
+/* -------------------------------------------------- */
+//          INCLUDES & DEFINES
+/* -------------------------------------------------- */
+#include <stdio.h>
+#include <string.h>
 #include "main.h"
 #include "usart.h"
-#include <stdio.h>
 #include "utilities.h"
 #include "delay.h"
 #include "SPI.h"
 #include "NRF_DRIVER.h"
-#include <string.h>
 #include "st7789_lcd_functions.h"
 #include "status_leds_command_buttons.h"
-#include"formated_printf.h"
+#include "formated_printf.h"
+
+/* -------------------------------------------------- */
+//          GLOBALS
+/* -------------------------------------------------- */
 volatile char ack_payload[10];
 
+/* -------------------------------------------------- */
+//          FUNCTION DECLARATIONS
+/* -------------------------------------------------- */
 void SystemClock_Config(void);
 
+/* -------------------------------------------------- */
+//          FUNCTION DEFINITIONS
+/* -------------------------------------------------- */
 void EXTI9_5_IRQHandler(void)
 {
 	static int i=0;
@@ -24,8 +45,7 @@ void EXTI9_5_IRQHandler(void)
         if(i%2==1){
         	print_error("\n\rDisabling GPS Module\n\r");
         	GPIOA->BSRR |=MAX30102_OFF_INDICATOR;
-
-        	strcpy(ack_payload,DISABLE_GPS_COMMAND);
+        	strcpy(ack_payload, DISABLE_GPS_COMMAND);
         }
         else{
         	print_success("\n\rEnabling GPS Module\n\r");
@@ -52,13 +72,12 @@ void EXTI9_5_IRQHandler(void)
 
 }
 
-
 int main(void)
 {
 	SystemClock_Config();
 	ST7789_Init();
-	uint8_t RxAddress[] = {0xB3,0xB4,0xB5,0xB6,0x05};
-	uint8_t RxData[32] ;
+	uint8_t RxAddress[] = {0xB3, 0xB4, 0xB5, 0xB6, 0x05};
+	uint8_t RxData[32];
 	uint8_t channel=10;
 	usart_init();
 	strcpy(ack_payload, ACK_DEF_COMMAND);
@@ -66,65 +85,17 @@ int main(void)
 	NRF_PRX_CONFIG(RxAddress,channel);
 	command_button_config();
 	print_info("\n\rSetting up as PRX Dynamic Payload Attempt\n\r");
-	for(int i=0;i<=0x1D;i++){
+	for(int i=0; i<=0x1D ;i++){
 		printf("\n\rRegister %x is value %x \n\r", i, NRF_READ_REGISTER(i));
 	}
 
-	lcd_initial_characters();
+	LCD_initial_display();
 
-	while(1){
-		if(is_data_on_pipe(0)==1){
-			print_info("\n\rReceived Data:");
-			uint8_t recv_width=NRF_RECV_DATA(RxData);
-			print(RxData, recv_width);
-			char str[32];
-			convert_to_str(RxData,recv_width,str);
-			char *delimeter="-";
-			char* tok=strtok(str,delimeter);
-			char heart_rate_data[10]={0};
-			char spo2_data[10]={0};
-			char gps_data_lat[10]={0};
-			char gps_data_long[10]={0};
-			int count_tok=0;
-
-			while(tok!=NULL){
-				count_tok++;
-				if(count_tok==1 && tok[0]=='T'){
-					memset(heart_rate_data,0,10);
-					strcpy(heart_rate_data,tok+1);
-					printf("\033[32m\n\rTemperature Value: %s\033[0m\n\r", heart_rate_data);
-				}
-
-				else if(count_tok==2 && tok[0]=='O'){
-					memset(spo2_data,0,10);
-					strcpy(spo2_data,tok+1);
-					printf("\033[32mSpO2  \t: %s\033[0m\n\r", spo2_data);
-				}
-
-				else if(count_tok==3 && tok[0]=='G'){
-					char *delim=",";
-					char* tok2=strtok(tok+1,delim);
-					strcpy(gps_data_lat,tok2);
-					tok2=strtok(NULL,delim);
-					strcpy(gps_data_long,tok2);
-					printf("\033[32mGPS Latitude: %s \n\rGPS Longitude: %s\033[0m\n\r", gps_data_lat, gps_data_long);
-				}
-				tok=strtok(NULL,delimeter);
-
-			}
-			//first clear previous text
-			char text[] = "    ";
-			ST7789_WriteString(100, 90, text, Font_11x18, LIGHT_BLUE, LIGHT_BLUE); // Display Data on LCD
-			ST7789_WriteString(100, 130, text, Font_11x18, LIGHT_BLUE, LIGHT_BLUE); // Display Data on LCD
-			ST7789_WriteString(100, 170, text, Font_11x18, LIGHT_BLUE, LIGHT_BLUE); // Display Data on LCD
-			ST7789_WriteString(100, 190, text, Font_11x18, LIGHT_BLUE, LIGHT_BLUE); // Display Data on LCD
-
-			ST7789_WriteString(100, 90, heart_rate_data, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
-			ST7789_WriteString(100, 130, spo2_data, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
-			ST7789_WriteString(100, 170, gps_data_lat, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
-			ST7789_WriteString(100, 190, gps_data_long, Font_11x18, WHITE, LIGHT_BLUE); // Display Data on LCD
-		}
+	while(1)
+	{
+		LCD_display_data(RxData);
 	}
+
 }
 
 void SystemClock_Config(void)

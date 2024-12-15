@@ -1,271 +1,300 @@
-/*******************************************************************************
-* Copyright (C) 2024 by Abhirath Koushik
-*
-* Redistribution, modification or use of this software in source or binary
-* forms is permitted as long as the files maintain this copyright. Users are
-* permitted to modify this and use it to learn about the field of embedded
-* software. Abhirath Koushik and the University of Colorado are not liable for
-* any misuse of this material.
-* ****************************************************************************/
+/* ---------------------------------------------------------------------------------
+ * Abhirath Koushik and Husamuldeen (Embedded Expert IO) (https://blog.embeddedexpert.io/?p=1215)
+ * ECEN 5613 - Fall 2024 - Prof. McClure
+ * University of Colorado Boulder
+ * Revised 12/15/2024
+ *  --------------------------------------------------------------------------------
+ * This file contains the functions related to the ST7789V Graphical LCD Display.
+   ---------------------------------------------------------------------------------*/
 
-/**
-* @file    st7789_lcd_functions.c
-* @brief   This file contains the functions related to ST7789V LCD Functions.
-*
-*
-* @author  Abhirath Koushik
-* @date    12-04-2024
-* @change_history Abhirath Koushik: Initial File Creation
-*/
-
-#include<stm32f411xe.h>
+/* -------------------------------------------------- */
+//          INCLUDES & DEFINES
+/* -------------------------------------------------- */
+#include <stm32f411xe.h>
 #include "st7789_lcd_functions.h"
 #include "SPI.h"
 #include "delay.h"
 
-#define USART_BAUDRATE 9600
-#define CLOCK 16000000  // Assume 16 MHz clock for APB2 (for USART1 and USART2)
+#define USART_BAUDRATE 9600   // Defining the Baud Rate used as 9600
+#define CLOCK 16000000        // Considering 16 MHz clock for APB2 (for USART1 and USART2)
+#define LCD_WIDTH_VAL_1 40
+#define LCD_HEIGHT_VAL_1 16
+#define LCD_WIDTH_VAL_2 11
+#define LCD_HEIGHT_VAL_2 18
+#define LCD_WINDOW_MASK_1 8
+#define LCD_WINDOW_MASK_2 0xFF
+#define LCD_WRITE_MASK_1 32
+#define LCD_WRITE_MASK_2 0x8000
 
+/* -------------------------------------------------- */
+//          GLOBALS
+/* -------------------------------------------------- */
+// Defined by Abhirath Koushik
+const tFont Font_11x18 = {LCD_WIDTH_VAL_2, LCD_HEIGHT_VAL_2, Font11x18_array};
+const tImage Earth_img = {earth_image, LCD_WIDTH_VAL_1, LCD_WIDTH_VAL_1, LCD_HEIGHT_VAL_1};
+const tImage Spo2 = {spo2_image, LCD_WIDTH_VAL_1, LCD_WIDTH_VAL_1, LCD_HEIGHT_VAL_1};
+const tImage thermo = {thermo_image, LCD_WIDTH_VAL_1, LCD_WIDTH_VAL_1, LCD_HEIGHT_VAL_1};
 
-
-const FontDef Font_11x18 = {11, 18, Font11x18_array};
-
-
-const tImage Earth_img = { EARTH_IMAGE, 40, 40,
-    16 };
-
-const tImage Spo2 = { spo2_image, 40, 40,
-    16 };
-
-const tImage thermo = { THERMO_IMAGE, 40, 40,
-    16 };
-
-
-void st7789_spi_init()
+/*
+ * Function for SPI Initialization of the LCD Module.
+ * This code is written by Abhirath Koushik.
+ *
+ * Parameters:
+ * 	None
+ *
+ * Returns:
+ * 	None
+ */
+void LCD_spi_init(void)
 {
-    SPI_INIT();
-
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; // Enable GPIOB clock for Pins PB4 (BL), PB5 (DC), PB6 (CS), and PB7 (RST)
+    SPI_INIT(); // Calling the common SPI Initialization Function
 
     /* Configure DC, RST, CS, and BL pins */
-    GPIOB->MODER &= ~(GPIO_MODER_MODE5_Msk | GPIO_MODER_MODE6_Msk | GPIO_MODER_MODE7_Msk | GPIO_MODER_MODE4_Msk);
-    // Clear the mode bits for PB4, PB5, PB6, and PB7
-
-    GPIOB->MODER |= (GPIO_MODER_MODE5_0 | GPIO_MODER_MODE6_0 | GPIO_MODER_MODE7_0 | GPIO_MODER_MODE4_0);
-    // Set PB4, PB5, PB6, and PB7 to output mode (01)
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; // Enable GPIOB clock for the Pins
+    GPIOB->MODER &= ~(GPIO_MODER_MODE5_Msk | GPIO_MODER_MODE6_Msk | GPIO_MODER_MODE7_Msk | GPIO_MODER_MODE4_Msk); // Clear the mode bits for the Pins
+    GPIOB->MODER |= (GPIO_MODER_MODE5_0 | GPIO_MODER_MODE6_0 | GPIO_MODER_MODE7_0 | GPIO_MODER_MODE4_0); // Set the Pins to output mode
 }
 
-void lcd_initial_characters(void)
-{
-	uint8_t rotate=0;
-	rotate=0x60;
-	ST7789_WriteCommand(ST7789_MADCTL);
-	ST7789_WriteSmallData(rotate);
-	ST7789_WriteString(20,20, "Wireless Sensor      Communication System", Font_11x18, GREEN, LIGHT_BLUE);
-	ST7789_DrawImage(20,80,40,40,THERMO_IMAGE);
-	ST7789_DrawImage(20,130,40,40,spo2_image);
-	ST7789_DrawImage(20,180,40,40,EARTH_IMAGE);
-}
-
-void ST7789_WriteCommand(uint8_t cmd)
+/*
+ * Function for writing Commands to the LCD.
+ * This code is written by Abhirath Koushik.
+ *
+ * Parameters:
+ * 	cmd: Command to be executed
+ *
+ * Returns:
+ * 	None
+ */
+void LCD_write_command(uint8_t cmd)
 {
 	GPIOB->BSRR = GPIOB_BSRR_RESET_DC; // DC Low indicating Command
 	GPIOB->BSRR = GPIOB_BSRR_RESET_CS; // Chip Select Low
 	SPI_TX_MULTI(&cmd,  1);
-	GPIOB->BSRR = GPIOB_BSRR_SET_CS; // Chip Select High
+	GPIOB->BSRR = GPIOB_BSRR_SET_CS;   // Chip Select High
 }
 
- void ST7789_WriteData(uint8_t *buff, uint32_t buff_size)
+/*
+ * Function for writing Data to the LCD of any given size.
+ * This code is written by Abhirath Koushik.
+ *
+ * Parameters:
+ * 	buff:      Pointer to the buffer which stores the data to be written
+ * 	buff_size: Size of the data to be written
+ *
+ * Returns:
+ * 	None
+ */
+void LCD_write_data(uint8_t *buff, uint32_t buff_size)
 {
-	GPIOB->BSRR = GPIOB_BSRR_SET_DC;
+	GPIOB->BSRR = GPIOB_BSRR_SET_DC;   // DC High indicating Data
 	GPIOB->BSRR = GPIOB_BSRR_RESET_CS; // Chip Select Low
 	SPI_TX_MULTI(buff, buff_size);
-	GPIOB->BSRR = GPIOB_BSRR_SET_CS; // Chip Select High
+	GPIOB->BSRR = GPIOB_BSRR_SET_CS;   // Chip Select High
 }
 
- void ST7789_WriteSmallData(uint8_t data)
+/*
+* Simplified function for writing 1 byte of data to the LCD.
+* This code is written by Abhirath Koushik.
+*
+* Parameters:
+* 	data: Data to be written
+*
+* Returns:
+* 	None
+*/
+void LCD_write_byte_data(uint8_t data)
 {
-	GPIOB->BSRR = GPIOB_BSRR_SET_DC; // DC High indicating Data
+	GPIOB->BSRR = GPIOB_BSRR_SET_DC;   // DC High indicating Data
 	GPIOB->BSRR = GPIOB_BSRR_RESET_CS; // Chip Select Low
 	SPI_TX_MULTI(&data, 1);
-	GPIOB->BSRR = GPIOB_BSRR_SET_CS; // Chip Select High
+	GPIOB->BSRR = GPIOB_BSRR_SET_CS;   // Chip Select High
 }
 
- void ST7789_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+/*
+* Function to Set the Address Window in the LCD.
+* This code is written by Abhirath Koushik.
+*
+* Parameters:
+* 	data: Data to be written
+*
+* Returns:
+* 	None
+*/
+void LCD_address_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
-	uint16_t x_start = x0 + X_SHIFT, x_end = x1 + X_SHIFT;
-	uint16_t y_start = y0 + Y_SHIFT, y_end = y1 + Y_SHIFT;
+    uint16_t x_start = x0;
+    uint16_t x_end = x1;
+    uint16_t y_start = y0;
+    uint16_t y_end = y1;
 
-	/* Column Address set */
-	ST7789_WriteCommand(ST7789_CASET);
-	{
-		uint8_t data[] = {x_start >> 8, x_start & 0xFF, x_end >> 8, x_end & 0xFF};
-		ST7789_WriteData(data, sizeof(data));
-	}
+    // Set column address
+    LCD_write_command(ST7789_CASET); // Column Address Set command
+    uint8_t col_data[] = {x_start >> LCD_WINDOW_MASK_1, x_start & LCD_WINDOW_MASK_2,
+    		x_end >> LCD_WINDOW_MASK_1, x_end & LCD_WINDOW_MASK_2};
+    LCD_write_data(col_data, sizeof(col_data));
 
-	/* Row Address set */
-	ST7789_WriteCommand(ST7789_RASET);
-	{
-		uint8_t data[] = {y_start >> 8, y_start & 0xFF, y_end >> 8, y_end & 0xFF};
-		ST7789_WriteData(data, sizeof(data));
-	}
-	/* Write to RAM */
-	ST7789_WriteCommand(ST7789_RAMWR);
+    // Set row address
+    LCD_write_command(ST7789_RASET); // Row Address Set command
+    uint8_t row_data[] = {y_start >> LCD_WINDOW_MASK_1, y_start & LCD_WINDOW_MASK_2,
+    		y_end >> LCD_WINDOW_MASK_1, y_end & LCD_WINDOW_MASK_2};
+    LCD_write_data(row_data, sizeof(row_data));
+
+    LCD_write_command(ST7789_RAMWR); // RAM Write command
 }
 
-void ST7789_Fill_Color(uint16_t color)
+/*
+* Function to Fill Color to the Whole LCD Screen.
+* This code is written by Abhirath Koushik.
+*
+* Parameters:
+* 	color: Color code (in hex)
+*
+* Returns:
+* 	None
+*/
+void LCD_fill_screen_color(uint16_t color)
 {
-	uint16_t i;
-	ST7789_SetAddressWindow(0, 0, ST7789_WIDTH - 1, ST7789_HEIGHT - 1);
-
-	uint16_t j;
-	for (i = 0; i < ST7789_WIDTH; i++)
-			for (j = 0; j < ST7789_HEIGHT; j++) {
-				uint8_t data[] = {color >> 8, color & 0xFF};
-				ST7789_WriteData(data, sizeof(data));
-			}
-
-}
-
-void ST7789_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor)
-{
-	uint32_t i, b, j;
-
-	ST7789_SetAddressWindow(x, y, x + font.width - 1, y + font.height - 1);
-
-	for (i = 0; i < font.height; i++) {
-		b = font.data[(ch - 32) * font.height + i];
-		for (j = 0; j < font.width; j++) {
-			if ((b << j) & 0x8000) {
-				uint8_t data[] = {color >> 8, color & 0xFF};
-				ST7789_WriteData(data, sizeof(data));
-			}
-			else {
-				uint8_t data[] = {bgcolor >> 8, bgcolor & 0xFF};
-				ST7789_WriteData(data, sizeof(data));
-			}
+	LCD_address_window(0, 0, LCD_WIDTH - 1, LCD_HEIGHT - 1);
+	for (uint16_t i = 0; i < LCD_WIDTH; i++){
+		for (uint16_t j = 0; j < LCD_HEIGHT; j++){
+			uint8_t data[] = {color >> LCD_WINDOW_MASK_1, color & LCD_WINDOW_MASK_2};
+			LCD_write_data(data, sizeof(data));
 		}
 	}
-
 }
 
-void ST7789_WriteString(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color, uint16_t bgcolor)
+/*
+* Function to draw a pixel at a particular position on the LCD with color.
+* This code is written by Abhirath Koushik.
+*
+* Parameters:
+*   x      : Column Position on the LCD
+*   y      : Row Position on the LCD
+* 	color  : Color code (in hex)
+*
+* Returns:
+* 	None
+*/
+void LCD_draw_pixel(uint16_t x, uint16_t y, uint16_t color)
 {
-
-	while (*str) {
-		if (x + font.width >= ST7789_WIDTH) {
-			x = 0;
-			y += font.height;
-			if (y + font.height >= ST7789_HEIGHT) {
-				break;
-			}
-
-			if (*str == ' ') {
-				// skip spaces in the beginning of the new line
-				str++;
-				continue;
-			}
-		}
-		ST7789_WriteChar(x, y, *str, font, color, bgcolor);
-		x += font.width;
-		str++;
-	}
-
+	LCD_address_window(x, y, x, y); // Set the same boundaries of x and y for a pixel
+	uint8_t data[] = {color >> LCD_WINDOW_MASK_1, color & LCD_WINDOW_MASK_2};
+	LCD_write_data(data, sizeof(data));
 }
 
-/**
- * @brief Initialize ST7789 controller
- * @param none
- * @return none
- */
-void ST7789_Init(void)
-{
-	st7789_spi_init();
-	delay(25);
-	GPIOB->BSRR = GPIOB_BSRR_RESET_RST;
-	delay(50);
-	GPIOB->BSRR = GPIOB_BSRR_SET_RST;
-    delay(50);
-    ST7789_WriteCommand(ST7789_SWRESET);
-    delay(100);
-    ST7789_WriteCommand(ST7789_COLMOD);		//	Set color mode
-    ST7789_WriteSmallData(ST7789_COLOR_MODE_16bit);
-  	ST7789_WriteCommand(0xB2);				//	Porch control
-	uint8_t data[] = {0x0C, 0x0C, 0x00, 0x33, 0x33};
-	ST7789_WriteData(data, sizeof(data));
-
-	/* Internal LCD Voltage generator settings */
-    ST7789_WriteCommand(0XB7);				//	Gate Control
-    ST7789_WriteSmallData(0x35);			//	Default value
-    ST7789_WriteCommand(0xBB);				//	VCOM setting
-    ST7789_WriteSmallData(0x20);			//	0.725v (default 0.75v for 0x20)
-    ST7789_WriteCommand(0xC0);				//	LCMCTRL
-    ST7789_WriteSmallData (0x2C);			//	Default value
-    ST7789_WriteCommand (0xC2);				//	VDV and VRH command Enable
-    ST7789_WriteSmallData (0x01);			//	Default value
-    ST7789_WriteCommand (0xC3);				//	VRH set
-    ST7789_WriteSmallData (0x0b);			//	+-4.45v (defalut +-4.1v for 0x0B)
-    ST7789_WriteCommand (0xC4);				//	VDV set
-    ST7789_WriteSmallData (0x20);			//	Default value
-    ST7789_WriteCommand (0xC6);				//	Frame rate control in normal mode
-    ST7789_WriteSmallData (0x0F);			//	Default value (60HZ)
-    ST7789_WriteCommand (0xD0);				//	Power control
-    ST7789_WriteSmallData (0xA4);			//	Default value
-    ST7789_WriteSmallData (0xA1);			//	Default value
-	/**************** Division line ****************/
-
-	ST7789_WriteCommand(0xE0);
-	{
-		uint8_t data[] = {0xD0, 0x04, 0x0D, 0x11, 0x13, 0x2B, 0x3F, 0x54, 0x4C, 0x18, 0x0D, 0x0B, 0x1F, 0x23};
-		ST7789_WriteData(data, sizeof(data));
-	}
-
-    ST7789_WriteCommand(0xE1);
-	{
-		uint8_t data[] = {0xD0, 0x04, 0x0C, 0x11, 0x13, 0x2C, 0x3F, 0x44, 0x51, 0x2F, 0x1F, 0x1F, 0x20, 0x23};
-		ST7789_WriteData(data, sizeof(data));
-	}
-    ST7789_WriteCommand (ST7789_INVON);		//	Inversion ON
-	ST7789_WriteCommand (ST7789_SLPOUT);	//	Out of sleep mode
-  	ST7789_WriteCommand (ST7789_NORON);		//	Normal Display on
-  	ST7789_WriteCommand (ST7789_DISPON);	//	Main screen turned on
-
-  	delay(120);
-
-  	GPIOB->BSRR = GPIOB_BSRR_SET_PB4;  // Set PB4 high
-
-  	delay(50);
-	ST7789_Fill_Color(LIGHT_BLUE);
-}
-
-void ST7789_DrawPixel(uint16_t x, uint16_t y, uint16_t color)
-{
-	if ((x < 0) || (x >= ST7789_WIDTH) ||
-		 (y < 0) || (y >= ST7789_HEIGHT))	return;
-
-	ST7789_SetAddressWindow(x, y, x, y);
-	uint8_t data[] = {color >> 8, color & 0xFF};
-	ST7789_WriteData(data, sizeof(data));
-}
-
-
-void ST7789_DrawImage(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const uint16_t *imageData)
+/*
+* Function to draw an image at a particular position on the LCD with color.
+* This code is written by Abhirath Koushik.
+*
+* Parameters:
+*   x      : Start Column Position on the LCD
+*   y      : Start Row Position on the LCD
+*   width  : Width of the Image on the LCD
+*   height : Height of the Image on the LCD
+*   img_bit_map : Bitmap Array of the Image to be displayed
+*
+* Returns:
+* 	None
+*/
+void LCD_draw_image(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const uint16_t *img_bit_map)
 {
     for (uint16_t row = 0; row < height; row++) {
         for (uint16_t col = 0; col < width; col++) {
-            uint16_t color = imageData[row * width + col];
-            ST7789_DrawPixel(x + col, y + row, color);
+            uint16_t color = img_bit_map[row * width + col];
+            LCD_draw_pixel(x + col, y + row, color);
         }
     }
 }
 
-void convert_to_str(uint8_t RxData[],int recv_width,char str[])
+/*
+* Function to write a character at a particular position on the LCD,
+* along with its text color and background color.
+* This code was originally written by Husamuldeen (Embedded Expert IO) and modified by Abhirath Koushik.
+*
+* Parameters:
+*   x      : Start Column Position on the LCD
+*   y      : Start Row Position on the LCD
+*   ch     : Character to write
+*   font   : Bitmap Array of the Font to use
+*   color  : Text Color of the Character
+*   bgcolor: Background Color around the boundaries of the character
+*
+* Returns:
+* 	None
+*/
+void LCD_write_character(uint16_t x, uint16_t y, char ch, tFont font, uint16_t color, uint16_t bgcolor)
 {
-	int i=0;
-	while(recv_width--){
-		str[i]=RxData[i];
-		i++;
-	}
-	str[i]='\0';
+    uint32_t i, b, j;
+
+    // Set the address window for the character display
+    LCD_address_window(x, y, x + font.width - 1, y + font.height - 1);
+
+    // Loop through each row of the character's font data
+    for (i = 0; i < font.height; i++) {
+        // Retrieve the bitmap data for the current row of the character
+        b = font.data[(ch - LCD_WRITE_MASK_1) * font.height + i];
+
+        // Loop through each pixel in the current row
+        for (j = 0; j < font.width; j++) {
+            // Check if the current pixel is part of the character foreground or the background
+            if ((b << j) & LCD_WRITE_MASK_2) {
+                // Foreground pixel: set to the specified color
+                uint8_t data[] = {color >> LCD_WINDOW_MASK_1, color & LCD_WINDOW_MASK_2};
+                LCD_write_data(data, sizeof(data));
+            } else {
+                // Background pixel: set to the specified background color
+                uint8_t data[] = {bgcolor >> LCD_WINDOW_MASK_1, bgcolor & LCD_WINDOW_MASK_2};
+                LCD_write_data(data, sizeof(data));
+            }
+        }
+    }
 }
 
+/*
+* Function to write a string at a particular position on the LCD,
+* along with its text color and background color.
+* This code was originally written by Husamuldeen (Embedded Expert IO) and modified by Abhirath Koushik.
+*
+* Parameters:
+*   x      : Start Column Position on the LCD
+*   y      : Start Row Position on the LCD
+*   ch     : Character to write
+*   font   : Bitmap Array of the Font to use
+*   color  : Text Color of the Character
+*   bgcolor: Background Color around the boundaries of the character
+*
+* Returns:
+* 	None
+*/
+void LCD_write_string(uint16_t x, uint16_t y, const char *str, tFont font, uint16_t color, uint16_t bgcolor)
+{
+    // Loop through each character in the string
+    while (*str) {
+        // Move to next line if character exceeds screen width
+        if (x + font.width >= LCD_WIDTH) {
+            x = 0; // Reset x-coordinate
+            y += font.height; // Move y-coordinate down by one character height
+
+            // Check if the new line will exceed the screen height
+            if (y + font.height >= LCD_HEIGHT) {
+                // If there's no more vertical space, stop drawing
+                break;
+            }
+
+            // Skip the character if space is detected
+            if (*str == ' ') {
+                str++;
+                continue;
+            }
+        }
+
+        // Call the Write Character function to write the individual characters on the LCD
+        LCD_write_character(x, y, *str, font, color, bgcolor);
+
+        // Move x-coordinate forward for the next character
+        x += font.width;
+
+        // Advance to the next character in the string
+        str++;
+    }
+}
