@@ -100,7 +100,6 @@ void LCD_display_data(uint8_t RxData[])
 	if(is_data_on_pipe(0)== 1){
 		print_info("\n\rReceived Data:");
 		uint8_t recv_width = NRF_RECV_DATA(RxData);
-		print(RxData, recv_width);
 		char str[32];
 		convert_to_str(RxData, recv_width,str);
 		char *delimeter="-";

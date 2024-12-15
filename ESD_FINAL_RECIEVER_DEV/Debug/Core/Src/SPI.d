@@ -8,7 +8,7 @@ Core/Src/SPI.o: ../Core/Src/SPI.c ../Core/Inc/SPI.h \
  ../Drivers/CMSIS/Include/mpu_armv7.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
  ../Core/Inc/NRF_DRIVER.h ../Core/Inc/SPI.h \
- ../Core/Inc/status_leds_command_buttons.h
+ ../Core/Inc/status_leds_command_buttons.h ../Core/Inc/formated_printf.h
 ../Core/Inc/SPI.h:
 ../Core/Inc/utilities.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h:
@@ -21,3 +21,4 @@ Core/Src/SPI.o: ../Core/Src/SPI.c ../Core/Inc/SPI.h \
 ../Core/Inc/NRF_DRIVER.h:
 ../Core/Inc/SPI.h:
 ../Core/Inc/status_leds_command_buttons.h:
+../Core/Inc/formated_printf.h:

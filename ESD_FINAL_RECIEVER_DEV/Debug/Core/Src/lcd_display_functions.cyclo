@@ -1,0 +1,4 @@
+../Core/Src/lcd_display_functions.c:54:6:LCD_initial_display	1
+../Core/Src/lcd_display_functions.c:77:6:convert_to_str	2
+../Core/Src/lcd_display_functions.c:98:6:LCD_display_data	9
+../Core/Src/lcd_display_functions.c:162:6:ST7789_Init	1
