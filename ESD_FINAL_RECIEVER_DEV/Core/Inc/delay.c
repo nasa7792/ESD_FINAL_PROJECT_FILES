@@ -1,3 +1,13 @@
+/* ---------------------------------------------------------------------------------
+ * Nalin Saxena
+ * ECEN 5613 - Fall 2024 - Prof. McClure
+ * University of Colorado Boulder
+ * Revised 10/12/24
+ * File name : delay.c
+ *  --------------------------------------------------------------------------------
+ * This file contains function definitions regarding systick configuration and creating 
+ * delay functions
+   ---------------------------------------------------------------------------------*/
 #include "delay.h"
 #include "stm32f4xx.h"
 
@@ -7,18 +17,20 @@
 #define CTRL_TICKINT				(1U<<1)
 #define SYSTICK_LOAD 12000 - 1
 
-volatile uint64_t mil;
+volatile uint64_t mil; //global tick
 
+
+/* -------------------------------------------------- */
+//          FUNCTION DEFINITIONS
+/* -------------------------------------------------- */
 void delay_init(){
 
-	SysTick->LOAD = SYSTICK_LOAD; //20 ms each tick
+	SysTick->LOAD = SYSTICK_LOAD; 
 	NVIC_SetPriority(SysTick_IRQn, 3);
 	SysTick->VAL = 0;
 	SysTick->CTRL = SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
 
 }
-
-
 
 uint64_t millis()
 	{
@@ -28,17 +40,15 @@ uint64_t millis()
 	return ml;
 	}
 
-
-
 void delay(uint32_t time)
 	{
 
 	uint64_t start=millis();
-	while((millis() - start) < time);
+	while((millis() - start) < time); //create software delay
 
 	}
 
 void SysTick_Handler(void)
 {
-	mil++;
+	mil++; //on isr increment mil counter
 }

@@ -1,3 +1,13 @@
+/* ---------------------------------------------------------------------------------
+ * Nalin Saxena
+ * ECEN 5613 - Fall 2024 - Prof. McClure
+ * University of Colorado Boulder
+ * Revised 10/12/24
+ * File name : delay.c
+ *  --------------------------------------------------------------------------------
+ * This file contains function definitions regarding systick configuration and creating 
+ * delay functions
+   ---------------------------------------------------------------------------------*/
 #include "delay.h"
 #include "stm32f4xx.h"
 #define	CTRL_ENABLE					(1U<<0)
@@ -12,6 +22,9 @@ extern uint16_t Timer1, Timer2;
 
 volatile uint64_t mil;
 
+/* -------------------------------------------------- */
+//          FUNCTION DEFINITIONS
+/* -------------------------------------------------- */
 void delay_init(){
 
 	SysTick->LOAD = SYSTICK_LOAD; //20 ms each tick
@@ -52,9 +65,4 @@ void SysTick_Handler(void)
 	if (Timer2 > 0){
 		Timer2--;
 	}
-}
-
-int isTimeout(uint32_t start,uint32_t timeout_val){
-	 return (millis() - start) >= timeout_val;
-
 }

@@ -39,7 +39,7 @@ void EXTI9_5_IRQHandler(void)
 {
 	static int i=0;
 	static int j=0;
-    if (EXTI->PR & EXTI_PR_PR6) { // Check if interrupt occurred on PC6
+    if (EXTI->PR & EXTI_PR_PR6) { // Check if interrupt occurred by PC6
         EXTI->PR = EXTI_PR_PR6;   // Clear interrupt flag for PC6
     	i++;
         if(i%2==1){
@@ -52,10 +52,10 @@ void EXTI9_5_IRQHandler(void)
         	 GPIOA->BSRR |=MAX30102_ON_INDICATOR;
         	 strcpy(ack_payload, ACK_DEF_COMMAND);
         }
-        // Handle PC6 button press logic here
+  
     }
 
-    if (EXTI->PR & EXTI_PR_PR7) { // Check if interrupt occurred on PC7
+    if (EXTI->PR & EXTI_PR_PR7) { // Check if interrupt caused by PC7
     	j++;
         EXTI->PR = EXTI_PR_PR7;   // Clear interrupt flag for PC7
         if(j%2==1){
@@ -76,9 +76,9 @@ int main(void)
 {
 	SystemClock_Config();
 	ST7789_Init();
-	uint8_t RxAddress[] = {0xB3, 0xB4, 0xB5, 0xB6, 0x05};
+	uint8_t RxAddress[] = {0xB3, 0xB4, 0xB5, 0xB6, 0x05}; //receiver address
 	uint8_t RxData[32];
-	uint8_t channel=10;
+	uint8_t channel=10; //channel seleected
 	usart_init();
 	strcpy(ack_payload, ACK_DEF_COMMAND);
 	NRF_INIT();
