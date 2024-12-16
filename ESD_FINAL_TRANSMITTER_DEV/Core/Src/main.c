@@ -14,10 +14,14 @@
  * If no LICENSE file comes with this software, it is provided AS-IS.
  *
  ******************************************************************************
+ *  Abhirath Koushik(HAL configuration) and Nalin Saxena (bare metal section and fsm)
  * the main function calls initalization for usart() ,nrf module in transmit mode,
  * max30102 module in spo2 mode. It also initalize the SPI2 peripheral for the sd card
  * and USART 1 for GPS module. An instance of the main fsm is also created and the refrence
  * is passed to execute the fsm
+ * 
+ * The HAL code is auto generated with the IOC file configuration and is 
+ * not written from scratch.
  ******************************************************************************
  */
 /* USER CODE END Header */
