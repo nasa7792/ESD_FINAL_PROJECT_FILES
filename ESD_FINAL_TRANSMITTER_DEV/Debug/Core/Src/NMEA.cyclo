@@ -1,1 +1,1 @@
-../Core/Src/NMEA.c:26:5:decodeGGA	18
+../Core/Src/NMEA.c:41:5:decodeGGA	16

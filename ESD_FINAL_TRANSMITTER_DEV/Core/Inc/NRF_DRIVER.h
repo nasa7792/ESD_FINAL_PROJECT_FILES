@@ -5,7 +5,7 @@
  * Revised 10/12/24
  * File name : NRF_DRIVER.h
  *  --------------------------------------------------------------------------------
- * This file contains function declarations related to basic SPI communication
+ * This file driver function declarations related to the NRF24L01 module
    ---------------------------------------------------------------------------------*/
 
 #ifndef INC_NRF_DRIVER_H_

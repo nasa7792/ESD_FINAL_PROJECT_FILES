@@ -156,7 +156,7 @@ void execute_sm(StateMachine *sm)
 		sm->current_state = STATE_STORE_DATA_SD_CARD;
 		delay(2000);
 		break;
-	case 		:
+	case STATE_STORE_DATA_SD_CARD:
 		print_info("\n\rState machine Status: Log Data to SD CARD\n \r");
 		process_SD_card(sm->nrf_payload);
 		sm->current_state = STATE_HEART_DATA_ACQUIRE;

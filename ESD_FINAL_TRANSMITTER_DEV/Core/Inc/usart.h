@@ -7,6 +7,8 @@
  *  --------------------------------------------------------------------------------
  * This file contains usart2 initalization and functions for printing debug information 
  * via stdout on a terminal emulator.
+ *
+ * This file was developed as part of ESD-Lab3 lab assignment and is taken from Lab3.
    ---------------------------------------------------------------------------------*/
 
 #ifndef SRC_USART_H_
