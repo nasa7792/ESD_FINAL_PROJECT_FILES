@@ -61,15 +61,15 @@ void SPI_TX_MULTI(uint8_t *data_ptr, int size)
 		while (!(SPI1->SR & (SPI_SR_TXE)))
 		{
 		}
-		SPI1->DR = data_ptr[i];
+		SPI1->DR = data_ptr[i]; //load data in DR regisster
 		i++;
 	}
-	/*Wait until TXE is set*/
+	//wait until txe is set to indicate buffer is empty
 	while (!(SPI1->SR & (SPI_SR_TXE)))
 	{
 	}
 
-	/*Wait for BUSY flag to reset*/
+	//wait for busy flag to clear , to indicate spi bus is not busy
 	while ((SPI1->SR & (SPI_SR_BSY)))
 	{
 	}
@@ -84,16 +84,16 @@ void SPI_READ_MULTI(uint8_t *data_ptr, int size)
 {
 	while (size)
 	{
-		/*Send dummy data*/
+		//Dummy data sent to generate clock
 		SPI1->DR = 0;
 
-		/*Wait for RXNE flag to be set*/
+		//wait for receive flag to be set
 		while (!(SPI1->SR & (SPI_SR_RXNE)))
 		{
 		}
 
-		/*Read data from data register*/
-		*data_ptr++ = (SPI1->DR);
-		size--;
+		//read data from data register
+		*data_ptr++ = (SPI1->DR); //increment data_ptr
+		size--; //decrement size
 	}
 }

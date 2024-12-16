@@ -6,6 +6,7 @@
  *
  *  file contains function definitions for usart
  *  usart get and put and usart init
+ *   This file was developed as part of ESD-Lab3 lab assignment and is taken from Lab3.
  */
 
 #include "usart.h"

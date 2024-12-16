@@ -10,6 +10,10 @@
 #ifndef INC_NRF_DRIVER_H_
 #define INC_NRF_DRIVER_H_
 
+/* -------------------------------------------------- */
+//          INCLUDES & DEFINES
+/* -------------------------------------------------- */
+
 #include "utilities.h"
 #include <stm32f411xe.h>
 #include "SPI.h"
@@ -17,6 +21,8 @@
 #include"formated_printf.h"
 
 #include "stdint.h"
+
+
 
 /* Reigster Map */
 #define CONFIG 0x00

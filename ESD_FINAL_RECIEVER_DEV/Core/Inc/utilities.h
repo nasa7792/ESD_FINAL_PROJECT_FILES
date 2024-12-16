@@ -3,8 +3,12 @@
  *
  *  Created on: Jul 21, 2023
  *      Author: lpandit
+ *
+ *This file was provided by Professor Lalilt pandit as part of
+ *ECEN 5813. It provides an easy way of modifying register and doing
+ *ECEN pin configurations.
+ *
  */
-
 #ifndef UTILITIES_H_
 #define UTILITIES_H_
 #include <stdint.h>

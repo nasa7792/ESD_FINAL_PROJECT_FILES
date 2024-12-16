@@ -2,12 +2,17 @@
  * status_leds_command_buttons.c
  *
  *  Created on: Dec 8, 2024
- *      Author: Asus
+ *      Author: Nalin Saxena
+ * 
+ * This file contains function definitions to configure output leds and command buttons
  */
 #include<stm32f411xe.h>
 #include"utilities.h"
 #include"status_leds_command_buttons.h"
 
+/* -------------------------------------------------- */
+//          FUNCTION DEFINITIONS
+/* -------------------------------------------------- */
 
 
 
