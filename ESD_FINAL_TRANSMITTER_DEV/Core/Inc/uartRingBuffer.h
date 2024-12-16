@@ -35,6 +35,7 @@ typedef struct
 
 /*
  * Function to initialize the Ring Buffer.
+ * This code was originally written by Controllers Tech.
  *
  * Parameters:
  * 	None
@@ -46,7 +47,8 @@ void Ringbuf_init(void);
 
 /*
  * Function to read the data in the RX Buffer and increment the Tail count.
- *
+ * This code was originally written by Controllers Tech.
+ * 
  * Parameters:
  * 	None
  *
@@ -57,6 +59,7 @@ int Uart_read(void);
 
 /*
  * Function to check if data is available to read from the RX Buffer.
+ * This code was originally written by Controllers Tech.
  *
  * Parameters:
  * 	None
@@ -68,7 +71,8 @@ int IsDataAvailable(void);
 
 /*
  * Function to peek for data in the RX Buffer without incrementing the Tail Count.
- *
+ * This code was originally written by Controllers Tech.
+ * 
  * Parameters:
  * 	None
  *
@@ -80,6 +84,7 @@ int Uart_peek();
 /*
  * Function to copy the data from the RX Buffer into another Buffer for parsing the data.
  * Data, including the entered string is copied through this function.
+ * This code was originally written by Controllers Tech.
  *
  * Parameters:
  * 	string            : Target string to match in the RX Buffer
@@ -93,7 +98,8 @@ int Copy_upto (char *string, char *buffertocopyinto);
 
 /*
  * Function to wait until a particular string is detected in the RX Buffer.
- *
+ * This code was originally written by Controllers Tech.
+ * 
  * Parameters:
  * 	string : Target string to match in the RX Buffer
  *
@@ -105,6 +111,7 @@ int Wait_for (char *string);
 
 /*
  * Function representing the UART Interrupt (ISR) Handler.
+ * This code was originally written by Controllers Tech.
  *
  * Parameters:
  * 	huart   : USART HAL Declaration
@@ -113,5 +120,18 @@ int Wait_for (char *string);
  *  None
  */
 void Uart_isr (UART_HandleTypeDef *huart);
+
+/*
+ * Function to store characters in the ring buffer.
+ * This code was originally written by Controllers Tech.
+ *
+ * Parameters:
+ * 	c       : Character to be stored
+ * 	buffer  : Pointer to the buffer which stores the characters
+ *
+ * Returns:
+ * 	None
+ */
+void store_char(unsigned char c, ring_buffer *buffer);
 
 #endif /* UARTRINGBUFFER_H_ */
