@@ -36,7 +36,7 @@ void SPI_TX_MULTI(uint8_t *data_ptr, int size);
  * Returns:
  * 			none
  */
-void SPI_READ_MULTI(uint8_t *data_ptr, int size); // read from nrf?
+void SPI_READ_MULTI(uint8_t *data_ptr, int size);
 
 /*
  * Initializes and configures the SPI1 peripherals

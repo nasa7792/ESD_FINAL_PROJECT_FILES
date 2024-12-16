@@ -50,6 +50,7 @@ int main(void)
   SystemClock_Config();
 
   usart_init();
+  delay_init();
 
   print_info("\n\rCalling INIT MAX30102\n\r");
 

@@ -29,7 +29,6 @@ void usart_init() {
     USART2->BRR = BAUD_9600;
 
     // Test character output to verify USART setup
-   // USART2->DR = 'B';
 }
 
 void usart_out(char ch) {

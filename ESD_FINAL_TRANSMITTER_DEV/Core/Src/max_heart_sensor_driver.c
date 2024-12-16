@@ -38,8 +38,8 @@ void MAX30102_init(){
 	    //sample average as 4 and enable fifo rollover 0x50 0101 0000
 	    MAX30102_WRITE_REGISTER(FIFO_CONFIG_REG, 0x50); //
 
-	    //spo2 config adc range as 4096  samples as 100 led pulse as 411 0010 0111
-	    MAX30102_WRITE_REGISTER(SPO2_CONFIG_REG, 0x27); //
+	    //spo2 config adc range as 4096  samples as 100 led pulse as 411
+	    MAX30102_WRITE_REGISTER(SPO2_CONFIG_REG, 0x27);
 
 	    // FIFO pointers
 	    MAX30102_WRITE_REGISTER(FIFO_READ_PTR, 0x00); // Reset FIFO write pointer
@@ -226,7 +226,7 @@ void MAX30102_read_fifo(uint32_t *red_led, uint32_t *ir_led) {
 uint32_t getRed(void)
 {
   //Check the sensor for new data for 250ms
-	if(safeCheck(250))
+	if(safeCheck(2500))
     return (sense.red[sense.head]);
   else
     return(0); //Sensor failed to find new data
@@ -235,7 +235,7 @@ uint32_t getRed(void)
 uint32_t getIR(void)
 {
   //Check the sensor for new data for 250ms
-	if(safeCheck(250))
+	if(safeCheck(2500))
     return (sense.IR[sense.head]);
   else
     return(0); //Sensor failed to find new data

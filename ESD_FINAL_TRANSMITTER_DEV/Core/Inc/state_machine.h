@@ -39,16 +39,16 @@ typedef enum
 typedef struct
 {
     current_state current_state;
-    int8_t valid_heart_rate;
-    int32_t spo2;
-    int32_t heart_rate;
-    int8_t valid_spo2;
-    float gps_lat;
-    float gps_long;
-    char dir1;
-    char dir2;
-    float temperature;
-    uint8_t nrf_payload[32];
+    int8_t valid_heart_rate; //Unused
+    int32_t spo2; //spo2
+    int32_t heart_rate;//Unused
+    int8_t valid_spo2; //status of spo2
+    float gps_lat; //gps latitude
+    float gps_long; //gps longitude
+    char dir1; //direction 1
+    char dir2; //direction 2
+    float temperature; //temperature
+    uint8_t nrf_payload[32]; //payload
 } StateMachine;
 
 /* -------------------------------------------------- */

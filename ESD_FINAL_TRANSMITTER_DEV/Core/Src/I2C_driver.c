@@ -67,7 +67,7 @@ void I2C_START_COMS()
 	while (I2C1->CR2 & I2C_SR1_SB)
 	{
 	} // wait for start condition to generate
-	delay(1);
+	delay(2);
 }
 
 void I2C_WRITE_DATA(uint8_t data)
@@ -94,7 +94,7 @@ void I2C_SEND_ADDRESS(uint8_t address)
 void I2C_STOP_COMS()
 {
 	I2C1->CR1 |= I2C_CR1_STOP; // stop condition
-	delay(1);
+	delay(2);
 }
 
 void I2C_READ(uint8_t address_slave, uint8_t *buffer_recv, uint8_t recv_buff_size)

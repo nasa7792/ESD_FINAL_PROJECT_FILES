@@ -4,7 +4,7 @@
 #define CTRL_CLKSRC					(1U<<2)
 #define CTRL_COUNTFLAG				(1U<<16)
 #define CTRL_TICKINT				(1U<<1)
-#define SYSTICK_LOAD 6000 - 1
+#define SYSTICK_LOAD 600 - 1
 
 extern uint16_t timeout;
 extern int VCCTimeout;
