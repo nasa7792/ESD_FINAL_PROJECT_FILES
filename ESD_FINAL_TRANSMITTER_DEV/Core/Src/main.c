@@ -14,6 +14,11 @@
  * If no LICENSE file comes with this software, it is provided AS-IS.
  *
  ******************************************************************************
+ * the main function calls initalization for usart() ,nrf module in transmit mode,
+ * max30102 module in spo2 mode. It also initalize the SPI2 peripheral for the sd card
+ * and USART 1 for GPS module. An instance of the main fsm is also created and the refrence
+ * is passed to execute the fsm
+ ******************************************************************************
  */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
@@ -49,19 +54,18 @@ int main(void)
 
   SystemClock_Config();
 
-  usart_init();
-  delay_init();
+  usart_init(); // initalize usart2 for terminal output
+  delay_init(); // initalize systick
 
   print_info("\n\rCalling INIT MAX30102\n\r");
-
+  // initalize max30102
   MAX30102_init();
-
   print_info("MAX30102 DETECTED AND INITALIZED!");
   printf("\n \r");
 
-  uint8_t TxAddress[] = {0xB3, 0xB4, 0xB5, 0xB6, 0x05};
+  uint8_t TxAddress[] = {0xB3, 0xB4, 0xB5, 0xB6, 0x05}; // tx address
 
-  uint8_t channel = 10;
+  uint8_t channel = 10; // channel of nrf
 
   delay(4000);
   print_info("Calling NRF INIT\n\r");
@@ -70,22 +74,20 @@ int main(void)
   NRF_PTX_CONFIG(TxAddress, channel);
 
   print_info("SETTING NODE AS PRIMARY TRANSMITTER \n \r ");
-
+  // print register values
   for (int i = 0; i <= 0x1D; i++)
   {
-
     printf("\n \r register %x is value %x \n \r", i, NRF_READ_REGISTER(i));
   }
 
-  StateMachine SM;
+  StateMachine SM; //create instance of fsm
 
-  FSM_INIT(&SM);
-
+  FSM_INIT(&SM); //initalize fsm
+ // Initialize peripherals
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_SPI2_Init();
   MX_FATFS_Init();
-
   Ringbuf_init();
 
   while (1)
