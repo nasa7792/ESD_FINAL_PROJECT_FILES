@@ -53,6 +53,8 @@
 #define SLOT_CONFIG 0x11
 #define REG_INTR_ENABLE_1 0x02
 #define REG_INTR_ENABLE_2 0x03
+#define MAX30102_READ_ADDRESS 0xAF
+#define MAX30102_WRITE_ADDRESS 0xAE
 
 /* -------------------------------------------------- */
 //          FUNCTION DECLARATIONS

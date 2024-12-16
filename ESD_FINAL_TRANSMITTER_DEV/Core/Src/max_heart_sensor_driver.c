@@ -1,9 +1,22 @@
-/*
- * max_heart_sensor_driver.c
+/* ---------------------------------------------------------------------------------
+ * Nalin Saxena
  *
- *  Created on: Nov 28, 2024
- *      Author: Nalin Saxena
- */
+ * original work- (functions MAX30102_init, MAX30102_WRITE_REGISTER,MAX30102_READ_REGISTER
+ *                 MAX30102_Read_Temperature, MAX30102_Start_Temperature_Measurement,MAX30102_init_TEMPERATURE
+ *                 MAX30102_read_fifo)
+ *
+ * ECEN 5613 - Fall 2024 - Prof. McClure
+ * University of Colorado Boulder
+ * Revised 10/12/24
+ * File name : max_heart_sensor_driver.c
+ *  --------------------------------------------------------------------------------
+ *
+ * This file contains function definitions related to communication with the max30102
+ *
+ * Attribution - the functions check_new_data,nextSample,getRed,getIR,available have been taken
+ *               from the following github https://github.com/sparkfun/MAX30105_Particle_Sensor_Breakout/tree/master/Libraries/Arduino/src
+ *               file name MAX30105.cpp. I would like to thank the original authours of the library Natahn Siedle and sparkfun developers.
+   ---------------------------------------------------------------------------------*/
 
 
 
@@ -70,7 +83,7 @@ void MAX30102_init_TEMPERATURE(){
 
 void MAX30102_WRITE_REGISTER(uint8_t register_Address, uint8_t data){
 	I2C_START_COMS();
-	uint8_t write_masked_address=0xAE;
+	uint8_t write_masked_address=MAX30102_WRITE_ADDRESS;
 	I2C_SEND_ADDRESS(write_masked_address); //same as AE
 	I2C_WRITE_DATA(register_Address);
 	I2C_WRITE_DATA(data);
@@ -80,8 +93,8 @@ void MAX30102_WRITE_REGISTER(uint8_t register_Address, uint8_t data){
 
 void MAX30102_READ_REGISTER(uint8_t register_Address, uint8_t *recv_buff, uint8_t recv_size){
 
-	uint8_t write_masked_address=0xAE;
-	uint8_t read_masked_address=0xAF; //should be AF
+	uint8_t write_masked_address=MAX30102_WRITE_ADDRESS; //write address
+	uint8_t read_masked_address=MAX30102_READ_ADDRESS; //read address
 	I2C_START_COMS(); //start i2c
 	I2C_SEND_ADDRESS(write_masked_address); //first send slave address
 	I2C_WRITE_DATA(register_Address); //send register address
@@ -107,22 +120,34 @@ float MAX30102_Read_Temperature() {
 
     // Combine the integer and fractional parts
     float temperature = temp_int + (temp_frac * 0.0625);
-    //printf("hi one read was done but then something happened %d \n \r",temp_frac);
+
     return temperature;
 }
 
+/*
+ * Not original code
+ * attribution mentioned in header
+ * */
 uint8_t MAX30102_get_Read_ptr(){
 	uint8_t read_ptr;
  MAX30102_READ_REGISTER(FIFO_READ_PTR,&read_ptr,1);
 	return read_ptr;
 }
 
+/*
+ * Not original code
+ * attribution mentioned in header
+ * */
 uint8_t MAX30102_get_WR_ptr(){
 	uint8_t wr_ptr;
     MAX30102_READ_REGISTER(FIFO_WR_PTR,&wr_ptr,1);
 	return wr_ptr;
 }
 
+/*
+ * Not original code
+ * attribution mentioned in header
+ * */
 uint8_t available(void)
 {
   int8_t numberOfSamples = sense.head - sense.tail;
@@ -131,7 +156,10 @@ uint8_t available(void)
   return (numberOfSamples);
 }
 
-
+/*
+ * Not original code
+ * attribution mentioned in header
+ * */
 uint16_t check_new_data(){
 	uint8_t writePointer=MAX30102_get_WR_ptr();
 	uint8_t readPointer=MAX30102_get_Read_ptr();
@@ -273,7 +301,6 @@ void acquire_max_30102_data(uint32_t num_ters,int8_t* heart_rate_status,int32_t*
 		    	*status=true;
 		    return ;
 		    }
-	//  uint32_t start_time = millis();
 	  while (--num_ters)
 	  {
 	    //dumping the first 25 sets of samples in the memory and shift the last 75 sets of samples to the top
